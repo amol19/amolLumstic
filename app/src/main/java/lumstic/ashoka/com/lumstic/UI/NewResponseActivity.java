@@ -454,59 +454,68 @@ public class NewResponseActivity extends Activity {
             answer.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                Toast.makeText(NewResponseActivity.this,answer.getId()+ "this is edit text id",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(NewResponseActivity.this, answer.getId() + "text view id is", Toast.LENGTH_SHORT).show();
                 }
             });
-
             answer.setOnFocusChangeListener(new View.OnFocusChangeListener() {
                 @Override
                 public void onFocusChange(View view, boolean b) {
                     if (b) {
                         answer = (EditText) view;
                     }
+
                     if (!b) {
-                        answer = (EditText) view;
+
                         Answers answers = new Answers();
                         answers.setQuestion_id(ques.getId());
                         answers.setResponseId(currentResponseId);
-                        answers.setRecordId(recordId);
-
                         tsLong = System.currentTimeMillis() / 1000;
+                        answers.setRecordId(recordId);
+                        Toast.makeText(NewResponseActivity.this, answers.getRecordId() + "record id", Toast.LENGTH_SHORT).show();
                         answers.setUpdated_at(tsLong);
                         answers.setContent(answer.getText().toString());
 
-                        if (!dbAdapter.doesAnswerExist(ques.getId(), currentResponseId))
-                            dbAdapter.insertDataAnswersTable(answers);
 
-                        //Toast.makeText(NewResponseActivity.this,"saved",Toast.LENGTH_LONG).show();
-                        if (dbAdapter.doesAnswerExist(ques.getId(), currentResponseId)) {
-                            dbAdapter.deleteFromAnswerTable(ques.getId(), currentResponseId);
-                            dbAdapter.insertDataAnswersTable(answers);
 
+                        if(!dbAdapter.doesAnswerExist(ques.getId(), currentResponseId, recordId)){
+
+                            if (dbAdapter.doesAnswerExist(ques.getId(), currentResponseId)) {
+                                int savedRecordId = dbAdapter.getRecordId(ques.getId(), currentResponseId);
+                                if ((savedRecordId == 0) && (recordId > 0)) {
+                                    //do not save
+                                }
+                                if ((recordId == 0) && (savedRecordId > 0)) {
+                                    //do not save
+                                }
+                                if ((savedRecordId > 0) &&(recordId>0 )&&(savedRecordId!=recordId)){
+                                    dbAdapter.insertDataAnswersTable(answers);
+                                }
+
+                                if((recordId==0)&&(savedRecordId==0)){
+                                    dbAdapter.deleteFromAnswerTable(ques.getId(), currentResponseId);
+                                    dbAdapter.insertDataAnswersTable(answers);
+                                }
+                            }
+
+
+                            if(!dbAdapter.doesAnswerExist(ques.getId(), currentResponseId)){
+                                dbAdapter.insertDataAnswersTable(answers);
+                            }
                         }
 
-//                        long maxId=dbAdapter.getMaxIDAnswersTabele();
-//                        if (!dbAdapter.doesAnswerExist(ques.getId(), currentResponseId)){
-//                            dbAdapter.insertDataAnswersTable(answers);
-//                            maxId=dbAdapter.getMaxIDAnswersTabele();
-//                            dbAdapter.insertIntoRecordTable(maxId,recordId);
-//                        }
-//                        if (dbAdapter.doesAnswerExist(ques.getId(), currentResponseId)) {
-//
-//                            if(dbAdapter.answerExistsInRecordTableAsRecordIdZero(maxId)==0){
-//                            dbAdapter.deleteFromAnswerTable(ques.getId(), currentResponseId);
-//                            dbAdapter.insertDataAnswersTable(answers);}
-//
-//                            if(dbAdapter.answerExistsInRecordTableAsRecordIdZero(maxId)!=0){
-//                                dbAdapter.insertDataAnswersTable(answers);
-//                            }
-//
-//                        }
-
-
+                        if(dbAdapter.doesAnswerExist(ques.getId(), currentResponseId, recordId)){
+                            if (dbAdapter.doesAnswerExist(ques.getId(), currentResponseId)) {
+                                int savedRecordId = dbAdapter.getRecordId(ques.getId(), currentResponseId);
+                                if ((savedRecordId != 0) && (recordId !=0)) {
+                                    dbAdapter.deleteFromAnswerTable(ques.getId(), currentResponseId,recordId);
+                                    dbAdapter.insertDataAnswersTable(answers);
+                                }
+                            }
+                        }
                     }
                 }
             });
+
 
             try {
                 checkForAnswer(ques, currentResponseId);
@@ -1001,7 +1010,7 @@ public class NewResponseActivity extends Activity {
             e.printStackTrace();
         }
 
-        //add answers not saved
+        //  add answers not saved
         if ((universalQuestion.getType().equals("SingleLineQuestion")) || ((universalQuestion.getType().equals("MultilineQuestion")) || ((universalQuestion.getType().equals("DateQuestion")) || ((universalQuestion.getType().equals("NumericQuestion")))))) {
             addAnswer(universalQuestion);
         } else {
@@ -1013,7 +1022,9 @@ public class NewResponseActivity extends Activity {
         boolean x = checkMandatory(nestedQuestionList);
         if (x) {
 
-            recordId=0;
+
+            Toast.makeText(NewResponseActivity.this, "the id focus changed is" + answer.getId(), Toast.LENGTH_SHORT).show();
+            recordId = 0;
             nestedQuestionList.clear();
 
             //set next and previous buttons
@@ -1035,7 +1046,7 @@ public class NewResponseActivity extends Activity {
                         //for multirecord questions
                         if (currentCategory.getType().equals("MultiRecordCategory")) {
 
-                            recordId=currentCategory.getId();
+                            recordId = currentCategory.getId();
                             Button addRecord = new Button(this);
                             addRecord.setBackgroundResource(R.drawable.custom_button);
                             addRecord.setText("+  Add Record");
@@ -1045,10 +1056,15 @@ public class NewResponseActivity extends Activity {
                                 @Override
                                 public void onClick(View view) {
 
-                                    recordId=recordId+20;
-                                    buildCategoryLayout(currentCategory);
                                     for (int k = 0; k < currentCategory.getQuestionsList().size(); k++) {
+                                        addAnswer(currentCategory.getQuestionsList().get(k));
                                     }
+                                    Toast.makeText(NewResponseActivity.this, "the id focus changed is" + answer.getId(), Toast.LENGTH_SHORT).show();
+                                    recordId = recordId + 20;
+
+
+                                    setCategoryQuestion(currentCategory);
+
                                 }
                             });
                         }
@@ -1220,7 +1236,22 @@ public class NewResponseActivity extends Activity {
         for (int j = categories.getQuestionsList().size() - 1; j >= 0; j--) {
             categoryQuestionCounter++;
             buildLayout(categories.getQuestionsList().get(j));
-            checkForAnswer(categories.getQuestionsList().get(j), currentResponseId);
+            if (recordId == 0) {
+                checkForAnswer(categories.getQuestionsList().get(j), currentResponseId);
+            }
+        }
+        categoryQuestionCounter = 0;
+
+    }
+
+    public void setCategoryQuestion(Categories categories) {
+
+        for (int j = categories.getQuestionsList().size() - 1; j >= 0; j--) {
+            categoryQuestionCounter++;
+            buildLayout(categories.getQuestionsList().get(j));
+            if (recordId == 0) {
+                checkForAnswer(categories.getQuestionsList().get(j), currentResponseId);
+            }
         }
         categoryQuestionCounter = 0;
 
@@ -1272,7 +1303,8 @@ public class NewResponseActivity extends Activity {
         }
     }
 
-    public void addAnswer(Questions questions) {
+    public void
+    addAnswer(Questions questions) {
 
         if (questions.getType().equals("SingleLineQuestion")) {
 
@@ -1281,21 +1313,51 @@ public class NewResponseActivity extends Activity {
             answers.setResponseId(currentResponseId);
             answers.setRecordId(recordId);
             answers.setContent(answer.getText().toString());
+            if (recordId != 0)
+                answers.setType("multirecord");
             tsLong = System.currentTimeMillis() / 1000;
             answers.setUpdated_at(tsLong);
 
 
+                if (!dbAdapter.doesAnswerExist(questions.getId(), currentResponseId, recordId)) {
 
-            if (!dbAdapter.doesAnswerExist(questions.getId(), currentResponseId)) {
-                dbAdapter.insertDataAnswersTable(answers);
-            }
-            if (dbAdapter.doesAnswerExist(questions.getId(), currentResponseId)) {
-                dbAdapter.deleteFromAnswerTable(questions.getId(), currentResponseId);
-                dbAdapter.insertDataAnswersTable(answers);
+                    if (dbAdapter.doesAnswerExist(questions.getId(), currentResponseId)) {
+                        int savedRecordId = dbAdapter.getRecordId(questions.getId(), currentResponseId);
+                        if ((savedRecordId == 0) && (recordId > 0)) {
+                            //do not save
+                        }
+                        if ((recordId == 0) && (savedRecordId > 0)) {
+                            //do not save
+                        }
+                        if ((savedRecordId > 0) && (recordId > 0) && (savedRecordId != recordId)) {
+                            dbAdapter.insertDataAnswersTable(answers);
+                        }
 
-            }
+                        if ((recordId == 0) && (savedRecordId == 0)) {
+                            dbAdapter.deleteFromAnswerTable(questions.getId(), currentResponseId);
+                            dbAdapter.insertDataAnswersTable(answers);
+                        }
+                    }
 
-            ;
+
+                    if (!dbAdapter.doesAnswerExist(questions.getId(), currentResponseId)) {
+                        dbAdapter.insertDataAnswersTable(answers);
+                    }
+                }
+
+                if (dbAdapter.doesAnswerExist(questions.getId(), currentResponseId, recordId)) {
+                    if (dbAdapter.doesAnswerExist(questions.getId(), currentResponseId)) {
+                        int savedRecordId = dbAdapter.getRecordId(questions.getId(), currentResponseId);
+                        if ((savedRecordId != 0) && (recordId != 0)) {
+                            dbAdapter.deleteFromAnswerTable(questions.getId(), currentResponseId, recordId);
+                            dbAdapter.insertDataAnswersTable(answers);
+                        }
+                    }
+                }
+
+
+
+
         }
 
         if (questions.getType().equals("MultilineQuestion")) {
@@ -1499,7 +1561,7 @@ public class NewResponseActivity extends Activity {
                         if (options1.getQuestions().size() > 0) {
                             for (int l = 0; l < options1.getQuestions().size(); l++) {
                                 buildLayout(options1.getQuestions().get(l));
-                                checkForAnswer(options1.getQuestions().get(l),currentResponseId);
+                                checkForAnswer(options1.getQuestions().get(l), currentResponseId);
                             }
                         }
                     }
