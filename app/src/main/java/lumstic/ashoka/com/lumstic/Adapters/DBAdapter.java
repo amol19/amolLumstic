@@ -93,6 +93,14 @@ public class DBAdapter {
         return answer;
     }
 
+    public long updateForMultiRecordType(Answers answers,int primaryKey){
+        long id;
+        ContentValues con = new ContentValues();
+        con.put(DBhelper.CONTENT, answers.getContent());
+
+        id= sqLiteDatabase.update(DBhelper.TABLE_answers, con, DBhelper.ID + "=" + primaryKey, null);
+        return  id;
+    }
 
     public List<Integer> getIdFromAnswerTable(int responseId, int questionId) {
         int id = 0;
@@ -101,6 +109,24 @@ public class DBAdapter {
         String[] coloums = {DBhelper.ID};
         String[] selectionArgs = {String.valueOf(responseId), String.valueOf(questionId)};
         Cursor cursor = sqLiteDatabase.query(DBhelper.TABLE_answers, coloums, DBhelper.RESPONSE_ID + " =? AND " + DBhelper.QUESTION_ID + " =?", selectionArgs, null, null, null);
+
+        while (cursor.moveToNext()) {
+            int index = cursor.getColumnIndex(DBhelper.ID);
+            id = cursor.getInt(index);
+            integers.add(id);
+
+
+        }
+        return integers;
+
+    }
+    public List<Integer> getIdFromAnswerTable(int responseId, int questionId,int recordId) {
+        int id = 0;
+
+        List<Integer> integers = new ArrayList<Integer>();
+        String[] coloums = {DBhelper.ID};
+        String[] selectionArgs = {String.valueOf(responseId), String.valueOf(questionId),String.valueOf(recordId)};
+        Cursor cursor = sqLiteDatabase.query(DBhelper.TABLE_answers, coloums, DBhelper.RESPONSE_ID + " =? AND " + DBhelper.QUESTION_ID + " =? AND " + DBhelper.RECORD_ID + " =?", selectionArgs, null, null, null);
 
         while (cursor.moveToNext()) {
             int index = cursor.getColumnIndex(DBhelper.ID);
@@ -556,13 +582,23 @@ public class DBAdapter {
     }
 
 
+
     public int deleteFromAnswerTable(int questionId, int responseId,int recordId) {
 
         String[] selectionArgs = {String.valueOf(questionId), String.valueOf(responseId),String.valueOf(recordId)};
-        int id1= sqLiteDatabase.delete(DBhelper.TABLE_answers, DBhelper.RECORD_ID + " =? AND " + DBhelper.QUESTION_ID + " =? AND " + DBhelper.RESPONSE_ID + " =?", selectionArgs);
-
+        int id1 = sqLiteDatabase.delete(DBhelper.TABLE_answers, DBhelper.QUESTION_ID + " =? AND " + DBhelper.RESPONSE_ID + " =? AND " + DBhelper.RECORD_ID + " =?", selectionArgs);
         return id1;
     }
+
+
+    public int deleteFromAnswerTableWithRecordId(int questionId, int responseId,int recordId) {
+
+        String[] selectionArgs = {String.valueOf(questionId), String.valueOf(responseId), String.valueOf(recordId)};
+        int id1 = sqLiteDatabase.delete(DBhelper.TABLE_answers, DBhelper.QUESTION_ID + " =? AND " + DBhelper.RESPONSE_ID + " =? AND " + DBhelper.RECORD_ID + " =?", selectionArgs);
+        return id1;
+    }
+
+
 
     public long insertDataQuestionTable(Questions questions) {
         ContentValues contentValues = new ContentValues();
@@ -633,7 +669,7 @@ public class DBAdapter {
         contentValues.put(DBhelper.RESPONSE_ID, answers.getResponseId());
         contentValues.put(DBhelper.QUESTION_ID, answers.getQuestion_id());
         contentValues.put(DBhelper.TYPE, answers.getType());
-          //Toast.makeText(context, "answer saved"+answers.getQuestion_id(), Toast.LENGTH_SHORT).show();
+        //Toast.makeText(context, "answer saved"+answers.getQuestion_id(), Toast.LENGTH_SHORT).show();
         return sqLiteDatabase.insert(DBhelper.TABLE_answers, null, contentValues);
     }
 
@@ -736,7 +772,7 @@ public class DBAdapter {
             super(context, DATABASE_NAME, null, DATABASE_VERSION);
             Log.e("contructor", "called");
             mcontext = context;
-         }
+        }
         @Override
         public void onCreate(SQLiteDatabase sqLiteDatabase) {
             sqLiteDatabase.execSQL(CREATE_TABLE_choices);
