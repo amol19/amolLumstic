@@ -30,9 +30,5 @@ android {
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile 'com.squareup.retrofit:retrofit:1.6.0'
-    compile 'org.codehaus.jackson:jackson-core-asl:1.9.12'
-    compile 'org.codehaus.jackson:jackson-mapper-asl:1.9.12'
-    compile 'com.koushikdutta.urlimageviewhelper:urlimageviewhelper:1.0.4'
     compile 'com.google.android.gms:play-services:4.2.42'
 }

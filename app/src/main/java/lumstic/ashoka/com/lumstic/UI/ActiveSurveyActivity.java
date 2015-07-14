@@ -402,7 +402,7 @@ public class ActiveSurveyActivity extends Activity {
                             }
                             try {
                                 if ((answerses.get(j).getType().equals("DropDownQuestion")) || (answerses.get(j).getType().equals("MultiChoiceQuestion")) || (answerses.get(j).getType().equals("RadioQuestion"))) {
-                                    if ((answerses.get(j).getContent().equals("")) && (dbAdapter.getChoicesCountWhereAnswerIdIs(answerses.get(j).getId()) > 0)) {
+                                    if ((answerses.get(j).getContent().equals("")) && (dbAdapter.getChoicesCountWhereAnswerIdIs(answerses.get(j).getId(),0) > 0)) {
                                         String type = dbAdapter.getQuestionTypeWhereAnswerIdIs(answerses.get(j).getId());
                                         if (type.equals("RadioQuestion")) {
                                             jsonObject.put("content", dbAdapter.getChoicesWhereAnswerCountIsOne(answerses.get(j).getId()));

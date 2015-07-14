@@ -5,6 +5,7 @@ public class Choices {
     int id;
     int optionId;
     int answerId;
+    int recordId;
     String option;
     String type;
 
@@ -38,6 +39,14 @@ public class Choices {
 
     public void setOptionId(int optionId) {
         this.optionId = optionId;
+    }
+
+    public int getRecordId() {
+        return recordId;
+    }
+
+    public void setRecordId(int recordId) {
+        this.recordId = recordId;
     }
 
     public int getAnswerId() {
