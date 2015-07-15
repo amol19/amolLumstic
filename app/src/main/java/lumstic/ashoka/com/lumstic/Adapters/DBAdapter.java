@@ -598,6 +598,19 @@ public class DBAdapter {
         return id1;
     }
 
+    public int findNoOfEntries(int questionId,int responseId){
+
+        int count=0;
+        String[] coloums = {DBhelper.ID};
+        String[] selectionArgs = {String.valueOf(questionId),String.valueOf(responseId)};
+        Cursor cursor = sqLiteDatabase.query(DBhelper.TABLE_answers, coloums, DBhelper.QUESTION_ID + " =? AND " + DBhelper.RESPONSE_ID + " =?", selectionArgs, null, null, null);
+
+        while (cursor.moveToNext()) {
+        count++;
+        }
+
+        return count;
+    }
 
 
     public long insertDataQuestionTable(Questions questions) {

@@ -860,7 +860,7 @@ public class NewResponseActivity extends Activity {
                         nestedQuestionList.add(ques);
                         //remove others from database
 
-                            removeOthersFromDataBase(options, ques);
+                        removeOthersFromDataBase(options, ques);
 
                         //decide where to make questions for nested question
                         if (options.getQuestions().size() > 0) {
@@ -1224,22 +1224,28 @@ public class NewResponseActivity extends Activity {
                                 answer.clearFocus();
                                 addRecordPressed=true;
                                 recordId = recordId + 20;
-                                for (int k = 0; k < currentCategory.getQuestionsList().size(); k++) {
-                                    addAnswer(currentCategory.getQuestionsList().get(k));
-
-                                }
-
-
-
-
-                                setCategoryQuestion(currentCategory);
+                              setCategoryQuestion(currentCategory);
                                 createDeleteRecord(questionNumbers);
 
                             }
                         });
                     }
-                    buildCategoryLayout(currentCategory);
-                    createDeleteRecord(questionNumbers);
+                    int entries=dbAdapter.findNoOfEntries(currentCategory.getQuestionsList().get(0).getId(),currentResponseId);
+                    Toast.makeText(NewResponseActivity.this,entries+"count",Toast.LENGTH_SHORT).show();
+                    if((!currentCategory.getType().equals("MultiRecordCategory")))
+                        buildCategoryLayout(currentCategory);
+
+                    if((currentCategory.getType().equals("MultiRecordCategory"))){
+                        if(entries==0)
+                            buildCategoryLayout(currentCategory);
+
+                    }
+
+
+                    if((currentCategory.getType().equals("MultiRecordCategory")) && (entries > 0))
+                        buildMultiRecordCategory(currentCategory);
+
+
                 }
             }
             //build question layout
@@ -1320,6 +1326,39 @@ public class NewResponseActivity extends Activity {
             e.printStackTrace();
         }
     }
+    public void buildMultiRecordCategory(Categories categories) {
+        LinearLayout nestedContainer = new LinearLayout(this);
+        nestedContainer.setOrientation(LinearLayout.VERTICAL);
+        TextView questionTextSingleLine = new TextView(this);
+        questionTextSingleLine.setTextSize(20);
+        questionTextSingleLine.setTextColor(Color.BLACK);
+        questionTextSingleLine.setPadding(8, 12, 8, 20);
+        questionTextSingleLine.setText("" + categories.getContent());
+        nestedContainer.addView(questionTextSingleLine);
+        nestedContainer.setId(categories.getId());
+        nestedContainer.setTag(categories);
+        fieldContainer.addView(nestedContainer);
+
+        //find no of entries made
+        int entries=dbAdapter.findNoOfEntries(categories.getQuestionsList().get(0).getId(),currentResponseId);
+        Toast.makeText(NewResponseActivity.this,entries+"count",Toast.LENGTH_SHORT).show();
+
+
+
+        for(int l=0;l<entries;l++) {
+
+            for (int j = categories.getQuestionsList().size() - 1; j >= 0; j--) {
+                categoryQuestionCounter++;
+                buildLayout(categories.getQuestionsList().get(j));
+                checkForAnswer(categories.getQuestionsList().get(j), currentResponseId);
+
+
+            }
+        }
+        categoryQuestionCounter = 0;
+
+    }
+
 
     //set category titles and build category layout
     public void setCategoryTitle(Categories categories) {
@@ -1338,7 +1377,7 @@ public class NewResponseActivity extends Activity {
             categoryQuestionCounter++;
             buildLayout(categories.getQuestionsList().get(j));
 
-                checkForAnswer(categories.getQuestionsList().get(j), currentResponseId);
+            checkForAnswer(categories.getQuestionsList().get(j), currentResponseId);
 
         }
         categoryQuestionCounter = 0;
@@ -1437,24 +1476,7 @@ public class NewResponseActivity extends Activity {
     public void
     addAnswer(Questions questions) {
 
-        if (questions.getType().equals("SingleLineQuestion")) {
 
-            Answers answers = new Answers();
-            answers.setQuestion_id(questions.getId());
-            answers.setResponseId(currentResponseId);
-            answers.setRecordId(recordId);
-            answers.setContent(answer.getText().toString());
-            if (recordId != 0)
-                answers.setType("multirecord");
-            tsLong = System.currentTimeMillis() / 1000;
-            answers.setUpdated_at(tsLong);
-
-
-            if (!dbAdapter.doesAnswerExist(questions.getId(), currentResponseId, answers.getRecordId())) {
-                dbAdapter.insertDataAnswersTable(answers);
-                Toast.makeText(NewResponseActivity.this, answers.getContent() + "   saved with record id" + answers.getRecordId(), Toast.LENGTH_SHORT).show();
-            }
-        }
 
         if (questions.getType().equals("MultilineQuestion")) {
             Answers answers = new Answers();
@@ -1494,6 +1516,23 @@ public class NewResponseActivity extends Activity {
             if (!dbAdapter.doesAnswerExist(questions.getId(), currentResponseId,recordId))
                 dbAdapter.insertDataAnswersTable(answers);
 
+        }
+        if (questions.getType().equals("SingleLineQuestion")) {
+
+            Answers answers = new Answers();
+            answers.setQuestion_id(questions.getId());
+            answers.setResponseId(currentResponseId);
+            answers.setRecordId(recordId);
+            answers.setContent(answer.getText().toString());
+            if (recordId != 0)
+                answers.setType("multirecord");
+            tsLong = System.currentTimeMillis() / 1000;
+            answers.setUpdated_at(tsLong);
+
+
+            if (!dbAdapter.doesAnswerExist(questions.getId(), currentResponseId, recordId)) {
+                dbAdapter.insertDataAnswersTable(answers);
+            }
         }
 
 
@@ -1560,6 +1599,7 @@ public class NewResponseActivity extends Activity {
             answers.setType("MultiChoiceQuestion");
             answers.setResponseId(currentResponseId);
             answers.setQuestion_id(questions.getId());
+            answers.setRecordId(recordId);
             answers.setResponseId(currentResponseId);
             tsLong = System.currentTimeMillis() / 1000;
             answers.setUpdated_at(tsLong);
