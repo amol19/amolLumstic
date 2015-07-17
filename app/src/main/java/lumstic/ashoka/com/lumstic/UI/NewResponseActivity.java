@@ -908,6 +908,8 @@ try {
             fieldContainer.addView(nestedContainer);
             ratingBar = (RatingBar) findViewById(R.id.ratingBar);
             ratingBar.setId(ques.getId() + 220 + recordId);
+
+            ratingBar.setNumStars(ques.getMaxLength());
             ratingBar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
                 //answer saved on rating changed
                 @Override
@@ -1037,12 +1039,14 @@ try {
         }
 
         //  add answers not saved
-        if ((universalQuestion.getType().equals("SingleLineQuestion")) || ((universalQuestion.getType().equals("MultilineQuestion")) || ((universalQuestion.getType().equals("DateQuestion")) || ((universalQuestion.getType().equals("NumericQuestion")))))) {
+try{        if ((universalQuestion.getType().equals("SingleLineQuestion")) || ((universalQuestion.getType().equals("MultilineQuestion")) || ((universalQuestion.getType().equals("DateQuestion")) || ((universalQuestion.getType().equals("NumericQuestion")))))) {
             addAnswer(universalQuestion);
         } else {
-            if (!dbAdapter.doesAnswerExist(universalQuestion.getId(), currentResponseId,recordId))
-                addAnswer(universalQuestion);
-        }
+    if (!dbAdapter.doesAnswerExist(universalQuestion.getId(), currentResponseId, recordId))
+        addAnswer(universalQuestion);
+}  }catch (Exception e){
+    e.printStackTrace();
+}
 
         //check for mandatory questions
         boolean x = checkMandatory(nestedQuestionList);
@@ -1097,9 +1101,14 @@ try {
                                 }
                             });
                         }
-                         entries=dbAdapter.findNoOfEntries(currentCategory.getQuestionsList().get(0).getId(),currentResponseId);
-                        Toast.makeText(NewResponseActivity.this,entries+"count",Toast.LENGTH_SHORT).show();
-                        if((!currentCategory.getType().equals("MultiRecordCategory")))
+                        if(currentCategory.getType().equals("MultiRecordCategory")) {
+try {
+    entries = dbAdapter.findNoOfEntries(currentCategory.getQuestionsList().get(0).getId(), currentResponseId);
+    Toast.makeText(NewResponseActivity.this, entries + "count", Toast.LENGTH_SHORT).show();
+}
+                        catch (Exception e){
+                        e.printStackTrace();}
+                        }if((!currentCategory.getType().equals("MultiRecordCategory")))
                             buildCategoryLayout(currentCategory);
 
                         if((currentCategory.getType().equals("MultiRecordCategory"))){
@@ -1238,33 +1247,35 @@ try {
                         addRecord.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
+
                                 onAddRecordClick();
+
 
                             }
                         });
                     }
-                    int entries=dbAdapter.findNoOfEntries(currentCategory.getQuestionsList().get(0).getId(),currentResponseId);
-                    Toast.makeText(NewResponseActivity.this,entries+"count",Toast.LENGTH_SHORT).show();
+                    if(currentCategory.getType().equals("MultiRecordCategory")) {
+                        entries = dbAdapter.findNoOfEntries(currentCategory.getQuestionsList().get(0).getId(), currentResponseId);
+                        Toast.makeText(NewResponseActivity.this, entries + "count", Toast.LENGTH_SHORT).show();
+                    }
                     if((!currentCategory.getType().equals("MultiRecordCategory")))
                         buildCategoryLayout(currentCategory);
 
                     if((currentCategory.getType().equals("MultiRecordCategory"))){
                         if(entries==0)
                             buildCategoryLayout(currentCategory);
+                        createDeleteRecord();
 
                     }
 
+                    if((currentCategory.getType().equals("MultiRecordCategory")) && (entries > 0)){
+                        recordId=recordId-20;
+                        for(int i=0;i<entries;i++){
 
-                    if((currentCategory.getType().equals("MultiRecordCategory")) && (entries > 0)) {
-                        recordId = recordId - 20;
-                        for (int i = 0; i < entries; i++) {
-
-                            Toast.makeText(NewResponseActivity.this, recordId + "record id is htis ", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(NewResponseActivity.this,recordId+"record id is htis ",Toast.LENGTH_SHORT).show();
                             onAddRecordClick();
-                        }
-                        entries=0;
-
-                    }
+                        }}
+                    entries=0;
                 }
             }
             //build question layout
