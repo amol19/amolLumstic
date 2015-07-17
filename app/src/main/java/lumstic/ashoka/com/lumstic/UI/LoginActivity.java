@@ -179,6 +179,7 @@ public class LoginActivity extends Activity {
             try {
                 HttpClient httpclient = new DefaultHttpClient();
                 HttpPost httppost = new HttpPost(url);
+                Log.e("urlis",url);
                 List nameValuePairs = new ArrayList();
                 nameValuePairs.add(new BasicNameValuePair("username", email));
                 nameValuePairs.add(new BasicNameValuePair("password", password));

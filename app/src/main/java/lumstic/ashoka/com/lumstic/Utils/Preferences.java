@@ -11,6 +11,7 @@ public class Preferences {
     private static final String user_id= "user_id";
     private static final String organization_id = "organization_id";
     private static final String base_url="base_url";
+    private static final Boolean back_pressed= false;
 
     private static final String SEARCH_LOG_ID="SEARCH_LOG_ID";
     private String SURVEY_DATA ="SURVEY_DATA";
@@ -58,6 +59,12 @@ public class Preferences {
         setString(base_url, baseUrl);
     }
 
+    public Boolean getBack_pressed() {
+        return getBoolean("back_pressed", false);
+    }
+    public void setBack_pressed(Boolean back_pressed) {
+        setBoolean("back_pressed", back_pressed);
+    }
 
     public String getAccessToken() {
         return getString(access_token, null);
@@ -75,6 +82,8 @@ public class Preferences {
     public String getOrganizationId() {
         return getString(organization_id, null);
     }
+
+
     public void setOrganizationId(String organizationId) {
         setString(organization_id, organizationId);
     }
@@ -95,6 +104,7 @@ public class Preferences {
     {
         setString(SEARCH_LOG_ID, searchLogId);
     }
+
     public void logout() {
         setAddAuthInHeader(false);
         setSearchLogId(null);

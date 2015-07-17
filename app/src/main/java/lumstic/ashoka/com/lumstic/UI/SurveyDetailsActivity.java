@@ -2,6 +2,7 @@ package lumstic.ashoka.com.lumstic.UI;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -17,6 +18,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -150,9 +152,11 @@ public class SurveyDetailsActivity extends Activity {
             @Override
             public void onClick(View view) {
 
+                lumsticApp.getPreferences().setBack_pressed(false);
                 Intent intent = new Intent(SurveyDetailsActivity.this, IncompleteResponseActivity.class);
                 intent.putExtra(IntentConstants.SURVEY, surveys);
                 startActivity(intent);
+                finish();
             }
         });
 
@@ -220,6 +224,15 @@ public class SurveyDetailsActivity extends Activity {
 
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        incompleteCount = dbAdapter.getIncompleteResponse(surveys.getId());
+        completeCount = dbAdapter.getCompleteResponse(surveys.getId());
+        incompleteTv.setText(incompleteCount + "");
+        completeTv.setText(completeCount + "");
+    }
+
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.survey_details, menu);
         return true;
@@ -233,6 +246,29 @@ public class SurveyDetailsActivity extends Activity {
             return true;
         }
         if (id == android.R.id.home) {
+            finish();
+            return true;
+        }
+        if (id == R.id.action_logout) {
+            final Dialog dialog = new Dialog(SurveyDetailsActivity.this);
+            dialog.requestWindowFeature(Window.FEATURE_NO_TITLE); //before
+            dialog.setContentView(R.layout.logout_dialog);
+            dialog.show();
+            Button button = (Button) dialog.findViewById(R.id.okay);
+            button.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    lumsticApp.getPreferences().setAccessToken("");
+                    Intent i = new Intent(SurveyDetailsActivity.this, LoginActivity.class);
+                    startActivity(i);
+                    dialog.dismiss();
+                }
+            });
+            return true;
+        }
+        if (id == R.id.action_fetch) {
+            Intent i = new Intent(SurveyDetailsActivity.this, ActiveSurveyActivity.class);
+            startActivity(i);
             finish();
             return true;
         }
@@ -282,7 +318,7 @@ public class SurveyDetailsActivity extends Activity {
                         jsonObject.put("question_id", answerses.get(j).getQuestion_id());
                         jsonObject.put("updated_at", answerses.get(j).getUpdated_at());
                         jsonObject.put("content", answerses.get(j).getContent());
-                        jsonObject.put("record_id",answerses.get(j).getRecordId());
+
 
                         try {
                             if ((answerses.get(j).getType().equals("MultiChoiceQuestion")) && (dbAdapter.getChoicesCount(answerses.get(j).getId()) == 0)) {
@@ -410,12 +446,15 @@ public class SurveyDetailsActivity extends Activity {
                 dbAdapter.deleteFromResponseTableOnUpload(surveyId);
                 completeCount = dbAdapter.getCompleteResponse(surveys.getId());
                 completeTv.setText(completeCount + "");
-                finish();
+                lumsticApp.getPreferences().setBack_pressed(true);
+                //finish();
             }
             //responses not uploaded
-            else
+            else{
                 Toast.makeText(SurveyDetailsActivity.this, "Responses upload unsuccessful", Toast.LENGTH_SHORT).show();
-            finish();
+            }
         }
     }
+
+
 }

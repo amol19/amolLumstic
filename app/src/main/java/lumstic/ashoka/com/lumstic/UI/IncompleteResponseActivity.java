@@ -18,12 +18,14 @@ import lumstic.ashoka.com.lumstic.Models.Questions;
 import lumstic.ashoka.com.lumstic.Models.Surveys;
 import lumstic.ashoka.com.lumstic.R;
 import lumstic.ashoka.com.lumstic.Utils.IntentConstants;
+import lumstic.ashoka.com.lumstic.Utils.LumsticApp;
 
 public class IncompleteResponseActivity extends Activity {
 
     private IncompleteResponsesAdapter incompleteResponsesAdapter;
     private DBAdapter dbAdapter;
     private ActionBar actionBar;
+    private LumsticApp lumsticApp;
 
     private Surveys surveys;
     private Questions identifierQuestion;
@@ -45,6 +47,7 @@ public class IncompleteResponseActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_incomplete_response);
 
+        lumsticApp= (LumsticApp) getApplication();
         //setting up action bar
         actionBar = getActionBar();
         actionBar.setTitle("Incomplete Responses");
@@ -86,8 +89,21 @@ public class IncompleteResponseActivity extends Activity {
             }
         }
         listView = (ListView) findViewById(R.id.listview);
+
         incompleteResponsesAdapter = new IncompleteResponsesAdapter(getApplicationContext(), incompleteResponseses, surveys);
+
+        incompleteResponsesAdapter.notifyDataSetChanged();
         listView.setAdapter(incompleteResponsesAdapter);
+
+    }
+
+
+    @Override
+    protected void onPostResume() {
+        super.onPostResume();
+        if(lumsticApp.getPreferences().getBack_pressed()){
+            finish();
+        }
     }
 
     @Override
@@ -95,6 +111,7 @@ public class IncompleteResponseActivity extends Activity {
         getMenuInflater().inflate(R.menu.incomplete_response, menu);
         return true;
     }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

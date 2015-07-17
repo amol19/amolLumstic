@@ -102,6 +102,7 @@ public class NewResponseActivity extends Activity {
     private boolean addRecordPressed = false;
     private int recordNumber=0;
     private int questionNumbers=0;
+    int entries=0;
 
 
 
@@ -278,9 +279,11 @@ public class NewResponseActivity extends Activity {
 
 
     public void onMarkComplete() {
-
-        answer.clearFocus();
-
+try {
+    answer.clearFocus();
+}catch (Exception e){
+    e.printStackTrace();
+}
         if (universalQuestion.getType().equals("SingleLineQuestion")) {
             addAnswer(universalQuestion);
         }
@@ -397,24 +400,24 @@ public class NewResponseActivity extends Activity {
 
             questionTextSingleLine.setTextSize(16);
             if (ques.getMandatory() == 1) {
-                questionTextSingleLine.setText("Q. " + (questionCounter + 1) + "." + categoryQuestionCounter + "   " + ques.getContent() + "  *");
+                questionTextSingleLine.setText("Q." + (questionCounter + 1) + "." + categoryQuestionCounter + "  " + ques.getContent() + "  *");
                 if (ques.getParentId() > 0)
-                    questionTextSingleLine.setText("Q. " + "   " + ques.getContent() + "  *");
+                    questionTextSingleLine.setText("Q." + "  " + ques.getContent() + "  *");
             } else {
-                questionTextSingleLine.setText("Q. " + (questionCounter + 1) + "." + categoryQuestionCounter + "   " + ques.getContent());
+                questionTextSingleLine.setText("Q." + (questionCounter + 1) + "." + categoryQuestionCounter + "  " + ques.getContent());
                 if (ques.getParentId() > 0)
-                    questionTextSingleLine.setText("Q. " + "   " + ques.getContent());
+                    questionTextSingleLine.setText("Q." + "  " + ques.getContent());
 
             }
         } else {
             if (ques.getMandatory() == 1) {
-                questionTextSingleLine.setText("Q. " + (questionCounter + 1) + "   " + ques.getContent() + "  *");
+                questionTextSingleLine.setText("Q." + (questionCounter + 1) + "  " + ques.getContent() + "  *");
                 if (ques.getParentId() > 0)
-                    questionTextSingleLine.setText("Q. " + "   " + ques.getContent() + "  *");
+                    questionTextSingleLine.setText("Q." + "  " + ques.getContent() + "  *");
             } else {
-                questionTextSingleLine.setText("Q. " + (questionCounter + 1) + "   " + ques.getContent());
+                questionTextSingleLine.setText("Q." + (questionCounter + 1) + "  " + ques.getContent());
                 if (ques.getParentId() > 0)
-                    questionTextSingleLine.setText("Q. " + "   " + ques.getContent());
+                    questionTextSingleLine.setText("Q." + "  " + ques.getContent());
 
             }
         }
@@ -1068,6 +1071,7 @@ public class NewResponseActivity extends Activity {
 
                 counterButton.setText(questionCounter + 1 + " out of " + totalQuestionCount);
 //for category type questions
+
                 for (int j = 0; j < categoriesList.size(); j++) {
                     if (categoriesList.get(j).getOrderNumber() == types.get(questionCounter)) {
                         currentCategory = categoriesList.get(j);
@@ -1087,26 +1091,32 @@ public class NewResponseActivity extends Activity {
                                 @Override
                                 public void onClick(View view) {
 
-                                    recordNumber++;
-                                    answer.clearFocus();
-                                    addRecordPressed=true;
-                                    recordId = recordId + 20;
-                                    for (int k = 0; k < currentCategory.getQuestionsList().size(); k++) {
-                                        addAnswer(currentCategory.getQuestionsList().get(k));
+                                    onAddRecordClick();
 
-                                    }
-
-
-
-
-                                    setCategoryQuestion(currentCategory);
-                                    createDeleteRecord(questionNumbers);
 
                                 }
                             });
                         }
-                        buildCategoryLayout(currentCategory);
-                        createDeleteRecord(questionNumbers);
+                         entries=dbAdapter.findNoOfEntries(currentCategory.getQuestionsList().get(0).getId(),currentResponseId);
+                        Toast.makeText(NewResponseActivity.this,entries+"count",Toast.LENGTH_SHORT).show();
+                        if((!currentCategory.getType().equals("MultiRecordCategory")))
+                            buildCategoryLayout(currentCategory);
+
+                        if((currentCategory.getType().equals("MultiRecordCategory"))){
+                            if(entries==0)
+                                buildCategoryLayout(currentCategory);
+                            createDeleteRecord();
+
+                        }
+
+                        if((currentCategory.getType().equals("MultiRecordCategory")) && (entries > 0)){
+                            recordId=recordId-20;
+                            for(int i=0;i<entries;i++){
+
+                                Toast.makeText(NewResponseActivity.this,recordId+"record id is htis ",Toast.LENGTH_SHORT).show();
+                                onAddRecordClick();
+                            }}
+                        entries=0;
                     }
                 }
 
@@ -1134,8 +1144,17 @@ public class NewResponseActivity extends Activity {
         }
     }
 
+    public void onAddRecordClick(){
+        recordNumber++;
+        answer.clearFocus();
+        addRecordPressed=true;
+        recordId = recordId + 20;
+        setCategoryQuestion(currentCategory);
+        createDeleteRecord();
+    }
 
-    public void createDeleteRecord(final int questionNumbers){
+
+    public void createDeleteRecord(){
 
         if(currentCategory.getType().equals("MultiRecordCategory")){
             final Button deleteRecord = new Button(this);
@@ -1150,10 +1169,6 @@ public class NewResponseActivity extends Activity {
                 @Override
                 public void onClick(View view) {
 
-
-                    for (int i = questionNumbers + 2 - 1; i >= 2; i--) {
-                        fieldContainer.removeViewAt(i);
-                    }
 
                     fieldContainer.removeView(findViewById(recordNumber + 1));
 
@@ -1193,8 +1208,12 @@ public class NewResponseActivity extends Activity {
 
 
         if (questionCounter != 0) {
-            answer.clearFocus();
+try {
+    answer.clearFocus();
+}catch (Exception e){
+    e.printStackTrace();}
             nestedQuestions.clear();
+
             fieldContainer.removeAllViews();
             //change count
             questionCounter--;
@@ -1219,13 +1238,7 @@ public class NewResponseActivity extends Activity {
                         addRecord.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
-
-                                recordNumber++;
-                                answer.clearFocus();
-                                addRecordPressed=true;
-                                recordId = recordId + 20;
-                              setCategoryQuestion(currentCategory);
-                                createDeleteRecord(questionNumbers);
+                                onAddRecordClick();
 
                             }
                         });
@@ -1242,10 +1255,16 @@ public class NewResponseActivity extends Activity {
                     }
 
 
-                    if((currentCategory.getType().equals("MultiRecordCategory")) && (entries > 0))
-                        buildMultiRecordCategory(currentCategory);
+                    if((currentCategory.getType().equals("MultiRecordCategory")) && (entries > 0)) {
+                        recordId = recordId - 20;
+                        for (int i = 0; i < entries; i++) {
 
+                            Toast.makeText(NewResponseActivity.this, recordId + "record id is htis ", Toast.LENGTH_SHORT).show();
+                            onAddRecordClick();
+                        }
+                        entries=0;
 
+                    }
                 }
             }
             //build question layout
@@ -1389,9 +1408,9 @@ public class NewResponseActivity extends Activity {
         for (int j = categories.getQuestionsList().size() - 1; j >= 0; j--) {
             categoryQuestionCounter++;
             buildLayout(categories.getQuestionsList().get(j));
-            if (recordId == 0) {
+
                 checkForAnswer(categories.getQuestionsList().get(j), currentResponseId);
-            }
+
         }
         categoryQuestionCounter = 0;
 
@@ -1743,7 +1762,7 @@ public class NewResponseActivity extends Activity {
                 for (int j = 0; j < qu.getOptions().size(); j++) {
                     if (qu.getOptions().get(j).getId() == list2.get(i)) {
 
-                        spinner.setSelection(j);
+                         spinner.setSelection(j);
 
                     }
 
