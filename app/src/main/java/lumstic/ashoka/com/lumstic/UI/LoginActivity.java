@@ -67,7 +67,6 @@ public class LoginActivity extends Activity {
         baseUrl=lumsticApp.getPreferences().getBaseUrl();
 
 
-        Toast.makeText(LoginActivity.this,baseUrl,Toast.LENGTH_SHORT).show();
 
         url=baseUrl+loginUrl;
         //if USER IS SIGNED IN
@@ -162,11 +161,6 @@ public class LoginActivity extends Activity {
 
         }
 
-        if (id == R.id.action_help) {
-            Intent i = new Intent(LoginActivity.this, HelpActivity.class);
-            startActivity(i);
-            return true;
-        }
         return super.onOptionsItemSelected(item);
     }
     //asyn class on new thread to api call progress

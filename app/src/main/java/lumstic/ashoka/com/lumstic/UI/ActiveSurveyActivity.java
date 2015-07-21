@@ -120,6 +120,7 @@ public class ActiveSurveyActivity extends Activity {
 
         uploadContainer = (LinearLayout) findViewById(R.id.upload_container);
         uploadButton = (Button) findViewById(R.id.upload_all);
+        uploadContainer.setVisibility(View.GONE);
 
         completeCount = dbAdapter.getCompleteResponseFull();
         if (dbAdapter.getCompleteResponseFull() == 0) {
@@ -130,6 +131,7 @@ public class ActiveSurveyActivity extends Activity {
         progressDialog.setIndeterminate(true);
         progressDialog.setMessage("Fetching Surveys ");
         progressDialog.show();
+        uploadContainer.setVisibility(View.GONE);
         //fetch survey execute
         new FetchSurvey().execute();
     }
@@ -160,6 +162,8 @@ public class ActiveSurveyActivity extends Activity {
                     progressDialog.setIndeterminate(true);
                     progressDialog.setMessage("Sync in Progress");
                     progressDialog.show();
+
+
                     new uploadResponse().execute();
                 }
             }
@@ -250,9 +254,7 @@ public class ActiveSurveyActivity extends Activity {
 
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        if (id == R.id.action_help) {
-            return true;
-        }
+
         if (id == R.id.action_logout) {
 
             final Dialog dialog = new Dialog(ActiveSurveyActivity.this);
@@ -339,10 +341,12 @@ public class ActiveSurveyActivity extends Activity {
             if (surveysList != null) {
                 dashBoardAdapter = new DashBoardAdapter(getApplicationContext(), surveysList);
                 progressDialog.dismiss();
+                uploadContainer.setVisibility(View.VISIBLE);
                 Toast.makeText(ActiveSurveyActivity.this, "Saving surveys to the device", Toast.LENGTH_SHORT).show();
             }
             if (surveysList == null) {
                 progressDialog.dismiss();
+                uploadContainer.setVisibility(View.VISIBLE);
                 Toast.makeText(ActiveSurveyActivity.this, "Please check your wifi or network settings", Toast.LENGTH_SHORT).show();
             }
             try {
@@ -402,7 +406,7 @@ public class ActiveSurveyActivity extends Activity {
                             }
                             try {
                                 if ((answerses.get(j).getType().equals("DropDownQuestion")) || (answerses.get(j).getType().equals("MultiChoiceQuestion")) || (answerses.get(j).getType().equals("RadioQuestion"))) {
-                                    if ((answerses.get(j).getContent().equals("")) && (dbAdapter.getChoicesCountWhereAnswerIdIs(answerses.get(j).getId(),0) > 0)) {
+                                    if ((answerses.get(j).getContent().equals("")) && (dbAdapter.getChoicesCountWhereAnswerIdIs(answerses.get(j).getId()) > 0)) {
                                         String type = dbAdapter.getQuestionTypeWhereAnswerIdIs(answerses.get(j).getId());
                                         if (type.equals("RadioQuestion")) {
                                             jsonObject.put("content", dbAdapter.getChoicesWhereAnswerCountIsOne(answerses.get(j).getId()));

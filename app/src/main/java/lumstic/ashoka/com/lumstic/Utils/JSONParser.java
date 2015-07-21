@@ -338,4 +338,17 @@ return true;
         }
         return false;
     }
+    public int getResponseId(String syncResponse) {
+        JSONObject jsonObject = null;
+        int id=0;
+        try {
+            jsonObject = new JSONObject(syncResponse);
+            id= jsonObject.getInt("response_id");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+
+        return id;
+    }
 }

@@ -152,7 +152,6 @@ public class SurveyDetailsActivity extends Activity {
             @Override
             public void onClick(View view) {
 
-                lumsticApp.getPreferences().setBack_pressed(false);
                 Intent intent = new Intent(SurveyDetailsActivity.this, IncompleteResponseActivity.class);
                 intent.putExtra(IntentConstants.SURVEY, surveys);
                 startActivity(intent);
@@ -224,15 +223,6 @@ public class SurveyDetailsActivity extends Activity {
 
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        incompleteCount = dbAdapter.getIncompleteResponse(surveys.getId());
-        completeCount = dbAdapter.getCompleteResponse(surveys.getId());
-        incompleteTv.setText(incompleteCount + "");
-        completeTv.setText(completeCount + "");
-    }
-
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.survey_details, menu);
         return true;
@@ -247,6 +237,12 @@ public class SurveyDetailsActivity extends Activity {
         }
         if (id == android.R.id.home) {
             finish();
+            return true;
+        }
+
+        if (id == R.id.action_fetch) {
+            Intent i = new Intent(SurveyDetailsActivity.this, ActiveSurveyActivity.class);
+            startActivity(i);
             return true;
         }
         if (id == R.id.action_logout) {
@@ -264,12 +260,6 @@ public class SurveyDetailsActivity extends Activity {
                     dialog.dismiss();
                 }
             });
-            return true;
-        }
-        if (id == R.id.action_fetch) {
-            Intent i = new Intent(SurveyDetailsActivity.this, ActiveSurveyActivity.class);
-            startActivity(i);
-            finish();
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -319,7 +309,6 @@ public class SurveyDetailsActivity extends Activity {
                         jsonObject.put("updated_at", answerses.get(j).getUpdated_at());
                         jsonObject.put("content", answerses.get(j).getContent());
 
-
                         try {
                             if ((answerses.get(j).getType().equals("MultiChoiceQuestion")) && (dbAdapter.getChoicesCount(answerses.get(j).getId()) == 0)) {
                                 jsonObject.put("option_ids", JSONObject.NULL);
@@ -331,8 +320,7 @@ public class SurveyDetailsActivity extends Activity {
 
                         try {
                             if ((answerses.get(j).getType().equals("DropDownQuestion")) || (answerses.get(j).getType().equals("MultiChoiceQuestion")) || (answerses.get(j).getType().equals("RadioQuestion"))) {
-                                int recordId=answerses.get(j).getRecordId();
-                                if ((answerses.get(j).getContent().equals("")) && (dbAdapter.getChoicesCountWhereAnswerIdIs(answerses.get(j).getId(),recordId) > 0)) {
+                                if ((answerses.get(j).getContent().equals("")) && (dbAdapter.getChoicesCountWhereAnswerIdIs(answerses.get(j).getId()) > 0)) {
                                     String type = dbAdapter.getQuestionTypeWhereAnswerIdIs(answerses.get(j).getId());
                                     if (type.equals("RadioQuestion")) {
                                         jsonObject.put("content", dbAdapter.getChoicesWhereAnswerCountIsOne(answerses.get(j).getId()));
@@ -341,7 +329,7 @@ public class SurveyDetailsActivity extends Activity {
                                         jsonObject.put("content", dbAdapter.getChoicesWhereAnswerCountIsOne(answerses.get(j).getId()));
                                     }
                                     if (type.equals("MultiChoiceQuestion")) {
-                                        List<Integer> options = new ArrayList<>();
+                                        List<Integer> options =  new ArrayList<>();
                                         options = dbAdapter.getChoicesWhereAnswerCountIsMoreThanOne(answerses.get(j).getId());
                                         if (options.size() > 0)
                                             jsonObject.putOpt("option_ids", options);
@@ -446,15 +434,11 @@ public class SurveyDetailsActivity extends Activity {
                 dbAdapter.deleteFromResponseTableOnUpload(surveyId);
                 completeCount = dbAdapter.getCompleteResponse(surveys.getId());
                 completeTv.setText(completeCount + "");
-                lumsticApp.getPreferences().setBack_pressed(true);
-                //finish();
             }
             //responses not uploaded
-            else{
+            else
                 Toast.makeText(SurveyDetailsActivity.this, "Responses upload unsuccessful", Toast.LENGTH_SHORT).show();
-            }
+
         }
     }
-
-
 }

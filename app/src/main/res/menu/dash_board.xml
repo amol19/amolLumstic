@@ -9,12 +9,12 @@
         android:title="@string/action_help">
         <menu>
 
-            <item
-                android:id="@+id/action_help1"
-                android:icon="@drawable/ic_menu_help"
-                android:title="@string/action_help">
+            <!--<item-->
+                <!--android:id="@+id/action_help1"-->
+                <!--android:icon="@drawable/ic_menu_help"-->
+                <!--android:title="@string/action_help">-->
 
-            </item>
+            <!--</item>-->
             <item
                 android:id="@+id/action_fetch"
                 android:icon="@drawable/ic_menu_fetch"

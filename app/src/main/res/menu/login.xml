@@ -9,16 +9,16 @@
         android:title="@string/action_help">
         <menu>
 
-            <item
-                android:id="@+id/action_about"
-                android:icon="@drawable/ic_about"
-                android:title="@string/action_about">
+            <!--<item-->
+                <!--android:id="@+id/action_about"-->
+                <!--android:icon="@drawable/ic_about"-->
+                <!--android:title="@string/action_about">-->
 
-            </item>
-            <item
-                android:id="@+id/action_help"
-                android:icon="@drawable/ic_menu_help"
-                android:title="@string/action_help" />
+            <!--</item>-->
+            <!--<item-->
+                <!--android:id="@+id/action_help"-->
+                <!--android:icon="@drawable/ic_menu_help"-->
+                <!--android:title="@string/action_help" />-->
             <item
                 android:id="@+id/action_settings"
                 android:icon="@drawable/ic_settings"
