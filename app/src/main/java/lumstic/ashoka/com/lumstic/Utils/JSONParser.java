@@ -7,6 +7,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import lumstic.ashoka.com.lumstic.Models.Categories;
@@ -24,21 +26,21 @@ public class JSONParser {
     List<Categories> categorieses;
 
 
-    public boolean parseForgotPassword(JSONObject jsonObjectForgotPassword){
-        String str= null;
+    public boolean parseForgotPassword(JSONObject jsonObjectForgotPassword) {
+        String str = null;
         try {
             str = jsonObjectForgotPassword.getString("notice");
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        if(str.equals("Email address not valid"))
-    return false;
+        if (str.equals("Email address not valid"))
+            return false;
         else
-return true;
+            return true;
     }
 
-    public UserModel parseLogin(JSONObject jsonObjectLogin){
-        userModel= new UserModel();
+    public UserModel parseLogin(JSONObject jsonObjectLogin) {
+        userModel = new UserModel();
         try {
             userModel.setAccess_token(jsonObjectLogin.getString("access_token"));
         } catch (JSONException e) {
@@ -59,13 +61,13 @@ return true;
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        return  userModel;
+        return userModel;
     }
 
 
     public Categories parseCategories(JSONObject jsonObjectCategories) {
         Categories categories = new Categories();
-        List<Questions> questionsList= new ArrayList<Questions>();
+        List<Questions> questionsList = new ArrayList<Questions>();
         try {
             try {
                 categories.setId(jsonObjectCategories.getInt("id"));
@@ -105,7 +107,7 @@ return true;
 
             try {
 
-                for(int i=0;i<jsonObjectCategories.getJSONArray("questions").length();i++){
+                for (int i = 0; i < jsonObjectCategories.getJSONArray("questions").length(); i++) {
                     questionsList.add(parseQuestions(jsonObjectCategories.getJSONArray("questions").getJSONObject(i)));
                 }
                 categories.setQuestionsList(questionsList);
@@ -120,8 +122,8 @@ return true;
 
     public Options parseOptions(JSONObject jsonObjectOptions) {
         Options options = new Options();
-        List<Questions> questionsList= new ArrayList<Questions>();
-        List<Categories> categoriesList= new ArrayList<Categories>();
+        List<Questions> questionsList = new ArrayList<Questions>();
+        List<Categories> categoriesList = new ArrayList<Categories>();
         try {
             options.setId(jsonObjectOptions.getInt("id"));
         } catch (JSONException e) {
@@ -145,7 +147,7 @@ return true;
 
         try {
 
-            for(int i=0;i<jsonObjectOptions.getJSONArray("questions").length();i++){
+            for (int i = 0; i < jsonObjectOptions.getJSONArray("questions").length(); i++) {
                 questionsList.add(parseQuestions(jsonObjectOptions.getJSONArray("questions").getJSONObject(i)));
             }
             options.setQuestions(questionsList);
@@ -155,14 +157,13 @@ return true;
 
         try {
 
-            for(int i=0;i<jsonObjectOptions.getJSONArray("categories").length();i++){
+            for (int i = 0; i < jsonObjectOptions.getJSONArray("categories").length(); i++) {
                 categoriesList.add(parseCategories(jsonObjectOptions.getJSONArray("categories").getJSONObject(i)));
             }
             options.setCategories(categoriesList);
         } catch (JSONException e) {
             e.printStackTrace();
         }
-
 
 
         return options;
@@ -244,8 +245,7 @@ return true;
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        if (jsonObjectQuestions.has("options"))
-        {
+        if (jsonObjectQuestions.has("options")) {
             try {
 
                 JSONArray jsonArrayOptions = jsonObjectQuestions.getJSONArray("options");
@@ -267,8 +267,8 @@ return true;
 
         try {
 
-            if((!jsonObjectQuestions.has("options"))&&(jsonObjectQuestions.getInt("parent_id")>=0)){
-                Log.e("workingwork","abc");
+            if ((!jsonObjectQuestions.has("options")) && (jsonObjectQuestions.getInt("parent_id") >= 0)) {
+                Log.e("workingwork", "abc");
 
             }
         } catch (Exception e) {
@@ -279,6 +279,48 @@ return true;
         return questions;
     }
 
+    JSONArray jsonParse(JSONArray jsonArray) throws JSONException {
+        List<JSONObject> jsonValues = new ArrayList<>();
+        for (int i = 0; i < jsonArray.length(); i++) {
+            JSONObject jsonObject = jsonArray.getJSONObject(i);
+            jsonValues.add(jsonObject);
+
+            if (jsonObject.has("options")) {
+                jsonObject.put("options", jsonParse(jsonObject.getJSONArray("options")));
+            }
+            if (jsonObject.has("questions")) {
+                jsonObject.put("questions", jsonParse(jsonObject.getJSONArray("questions")));
+            }
+            if (jsonObject.has("categories")) {
+                jsonObject.put("categories", jsonParse(jsonObject.getJSONArray("categories")));
+            }
+        }
+        Collections.sort(jsonValues, new Comparator<JSONObject>() {
+            private static final String KEY_NAME = "order_number";
+
+            @Override
+            public int compare(JSONObject a, JSONObject b) {
+                int valA = 0, valB = 0;
+                try {
+                    valA = Integer.parseInt(a.get(KEY_NAME).toString());
+                    valB = Integer.parseInt(b.get(KEY_NAME).toString());
+                } catch (JSONException e) {
+                }
+
+                if (valA > valB) {
+                    return 1;
+                } else if (valA < valB) {
+                    return -1;
+                }
+                return 0;
+            }
+        });
+        JSONArray jsonArray1 = new JSONArray();
+        for (int j = 0; j < jsonValues.size(); j++) {
+            jsonArray1.put(jsonValues.get(j));
+        }
+        return jsonArray1;
+    }
 
     public List<Surveys> parseSurvey(JSONArray jsonArrayMain) {
 
@@ -298,18 +340,23 @@ return true;
                 surveys.setPublishedOn(jsonObject.getString("published_on"));
 
                 JSONArray jsonArray = jsonObject.getJSONArray("questions");
-                for (int j = 0; j < jsonArray.length(); j++) {
-                    JSONObject jsonObjectQuestion = jsonArray.getJSONObject(j);
+                JSONArray sortedArrayForQuestion = jsonParse(jsonArray);
+
+
+                for (int j = 0; j < sortedArrayForQuestion.length(); j++) {
+                    JSONObject jsonObjectQuestion = sortedArrayForQuestion.getJSONObject(j);
                     Questions questions = parseQuestions(jsonObjectQuestion);
-                    if(questions!=null){
-                    questionses.add(j, questions);
-                }}
+                    if (questions != null) {
+                        questionses.add(j, questions);
+                    }
+                }
                 surveys.setQuestions(questionses);
 
 
                 JSONArray jsonArrayCategories = jsonObject.getJSONArray("categories");
-                for (int l = 0; l < jsonArrayCategories.length(); l++) {
-                    JSONObject jsonObjectCategories = jsonArrayCategories.getJSONObject(l);
+                JSONArray sortedArrayForCategories = jsonParse(jsonArrayCategories);
+                for (int l = 0; l < sortedArrayForCategories.length(); l++) {
+                    JSONObject jsonObjectCategories = sortedArrayForCategories.getJSONObject(l);
                     Categories categories = parseCategories(jsonObjectCategories);
                     categorieses.add(l, categories);
 
@@ -324,6 +371,7 @@ return true;
 
         return surveyses;
     }
+
     public boolean parseSyncResult(String syncResponse) {
         try {
             JSONObject jsonObject = new JSONObject(syncResponse);
@@ -338,12 +386,13 @@ return true;
         }
         return false;
     }
+
     public int getResponseId(String syncResponse) {
         JSONObject jsonObject = null;
-        int id=0;
+        int id = 0;
         try {
             jsonObject = new JSONObject(syncResponse);
-            id= jsonObject.getInt("response_id");
+            id = jsonObject.getInt("response_id");
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -351,4 +400,6 @@ return true;
 
         return id;
     }
+
+
 }
