@@ -35,6 +35,7 @@ import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -44,6 +45,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Random;
+
 import lumstic.ashoka.com.lumstic.Adapters.DBAdapter;
 import lumstic.ashoka.com.lumstic.Models.Answers;
 import lumstic.ashoka.com.lumstic.Models.Categories;
@@ -96,9 +98,9 @@ public class NewResponseActivity extends Activity {
     private LinearLayout fieldContainer;
     private LayoutInflater inflater;
     private RatingBar ratingBar;
-    private int recordId=0;
+    private int recordId = 0;
     private LumsticApp lumsticApp;
-    private boolean numberlimitOk=true;
+    private boolean numberlimitOk = true;
 
 
     @Override
@@ -112,7 +114,7 @@ public class NewResponseActivity extends Activity {
         //layout inflater initialization
         inflater = getLayoutInflater();
         dbAdapter = new DBAdapter(NewResponseActivity.this);
-        lumsticApp= (LumsticApp) getApplication();
+        lumsticApp = (LumsticApp) getApplication();
         //decleration of list items
         stringTypes = new ArrayList<String>();
         types = new ArrayList<Integer>();
@@ -163,12 +165,14 @@ public class NewResponseActivity extends Activity {
             }
         });
     }
+
     public void setActionbar() {
         actionBar = getActionBar();
         actionBar.setTitle("New Response Activity");
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setDisplayShowTitleEnabled(true);
     }
+
     public void setViews() {
         counterButton = (Button) findViewById(R.id.counter_button);
         fieldContainer = (LinearLayout) findViewById(R.id.field_container);
@@ -176,6 +180,7 @@ public class NewResponseActivity extends Activity {
         previousQuestion = (Button) findViewById(R.id.previous_question);
         markAsComplete = new Button(this);
     }
+
     public void createMarkAsComplete() {
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         params.leftMargin = 5;
@@ -189,6 +194,7 @@ public class NewResponseActivity extends Activity {
         markAsComplete.setLayoutParams(params);
         markAsComplete.setVisibility(View.GONE);
     }
+
     public TextView makeMandatoryText() {
         TextView mandatoryText = new TextView(this);
         mandatoryText.setTextSize(16);
@@ -263,13 +269,12 @@ public class NewResponseActivity extends Activity {
 
     public void onMarkComplete() {
 
-        try{
+        try {
             answer.clearFocus();
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
-        if (universalQuestion.getType().equals("SingleLineQuestion")||(universalQuestion.getType().equals("MultilineQuestion"))||(universalQuestion.getType().equals("NumericQuestion"))) {
+        if (universalQuestion.getType().equals("SingleLineQuestion") || (universalQuestion.getType().equals("MultilineQuestion")) || (universalQuestion.getType().equals("NumericQuestion"))) {
             addAnswer(universalQuestion);
         }
         if (checkMandatory(nestedQuestionList)) {
@@ -445,7 +450,7 @@ public class NewResponseActivity extends Activity {
             nestedContainer.setTag(ques);
             fieldContainer.addView(nestedContainer);
             answer = (EditText) findViewById(R.id.answer_text);
-            answer.setId(ques.getId() + IntentConstants.VIEW_CONSTANT+ recordId);
+            answer.setId(ques.getId() + IntentConstants.VIEW_CONSTANT + recordId);
             hideKeypad(answer);
 
             answer.setOnFocusChangeListener(new View.OnFocusChangeListener() {
@@ -465,10 +470,9 @@ public class NewResponseActivity extends Activity {
                         answers.setContent(answer.getText().toString());
 
 
-
-
-                        if (!dbAdapter.doesAnswerExist(ques.getId(), currentResponseId)){
-                            dbAdapter.insertDataAnswersTable(answers);}
+                        if (!dbAdapter.doesAnswerExist(ques.getId(), currentResponseId)) {
+                            dbAdapter.insertDataAnswersTable(answers);
+                        }
                         if (dbAdapter.doesAnswerExist(ques.getId(), currentResponseId)) {
                             dbAdapter.deleteFromAnswerTable(ques.getId(), currentResponseId);
                             dbAdapter.insertDataAnswersTable(answers);
@@ -569,14 +573,15 @@ public class NewResponseActivity extends Activity {
                 @Override
                 public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
 
-                    try{
-                    if(i==0){
-                        Toast.makeText(NewResponseActivity.this,"working",Toast.LENGTH_SHORT).show();
-                        addOptionToDataBase(null, ques);
-                        nestedQuestionList.clear();
-                        nestedQuestionList.add(ques);
-                        removeOthersFromDataBase(null, ques);
-                    }}catch (Exception e){
+                    try {
+                        if (i == 0) {
+                            //  Toast.makeText(NewResponseActivity.this, "working", Toast.LENGTH_SHORT).show();
+                            addOptionToDataBase(null, ques);
+                            nestedQuestionList.clear();
+                            nestedQuestionList.add(ques);
+                            removeOthersFromDataBase(null, ques);
+                        }
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
 
@@ -711,8 +716,8 @@ public class NewResponseActivity extends Activity {
             fieldContainer.addView(nestedContainer);
             answer = (EditText) findViewById(R.id.answer_text);
             answer.setId(ques.getId() + IntentConstants.VIEW_CONSTANT + recordId);
-            if(ques.getMaxVlue()!=0&&ques.getMinValue()!=0)
-            answer.setHint("Between  "+ques.getMinValue()+" to " + ques.getMaxVlue());
+            if (ques.getMaxVlue() != 0 && ques.getMinValue() != 0)
+                answer.setHint("Between  " + ques.getMinValue() + " to " + ques.getMaxVlue());
             answer.setOnFocusChangeListener(new View.OnFocusChangeListener() {
                 public void onFocusChange(View view, boolean b) {
                     if (b) {
@@ -801,6 +806,8 @@ public class NewResponseActivity extends Activity {
             radioGroup = new RadioGroup(this);
             radioGroup.setOrientation(RadioGroup.VERTICAL);
             nestedContainer.addView(radioGroup);
+
+
             for (int i = 0; i < ques.getOptions().size(); i++) {
                 final RadioButton radioButton = new RadioButton(this);
                 radioGroup.addView(radioButton);
@@ -867,8 +874,7 @@ public class NewResponseActivity extends Activity {
             nestedContainer.setTag(ques);
             fieldContainer.addView(nestedContainer);
             ratingBar = (RatingBar) findViewById(R.id.ratingBar);
-            ratingBar.setNumStars(ques.getMaxLength());
-            ratingBar.setId(ques.getId() + IntentConstants.VIEW_CONSTANT+ recordId);
+            ratingBar.setId(ques.getId() + IntentConstants.VIEW_CONSTANT + recordId);
             ratingBar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
                 //answer saved on rating changed
                 @Override
@@ -904,12 +910,13 @@ public class NewResponseActivity extends Activity {
             fieldContainer.addView(nestedContainer);
 
             Button lButton = (Button) findViewById(R.id.answer_text_image);
-            lButton.setId(ques.getId() + IntentConstants.VIEW_CONSTANT + recordId );
+            lButton.setId(ques.getId() + IntentConstants.VIEW_CONSTANT + recordId);
 
             deleteImageRelativeLayout = (RelativeLayout) findViewById(R.id.image_container);
 
             imageViewPhotoQuestion = (ImageView) findViewById(R.id.image);
 
+            imageViewPhotoQuestion.setId(ques.getId());
             imageContainer = (RelativeLayout) findViewById(R.id.image_container);
             lButton.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -984,6 +991,7 @@ public class NewResponseActivity extends Activity {
             e.printStackTrace();
         }
 
+
         //add answers not saved
         if ((universalQuestion.getType().equals("SingleLineQuestion")) || ((universalQuestion.getType().equals("MultilineQuestion")) || ((universalQuestion.getType().equals("DateQuestion")) || ((universalQuestion.getType().equals("NumericQuestion")))))) {
             addAnswer(universalQuestion);
@@ -992,103 +1000,89 @@ public class NewResponseActivity extends Activity {
                 addAnswer(universalQuestion);
         }
 
-        if(universalQuestion.getType().equals("NumericQuestion")){
-            int num=Integer.parseInt(answer.getText().toString());
-            if(universalQuestion.getMinValue()!=0&&universalQuestion.getMaxVlue()!=0){
-                if(num<universalQuestion.getMinValue() || num>universalQuestion.getMaxVlue()){
+        try {
+            if (universalQuestion.getType().equals("NumericQuestion")) {
+                int num = Integer.parseInt(answer.getText().toString());
+                if (universalQuestion.getMinValue() != 0 && universalQuestion.getMaxVlue() != 0) {
+                    if (num < universalQuestion.getMinValue() || num > universalQuestion.getMaxVlue()) {
 
-                    numberlimitOk=false;
-                    final Dialog dialog = new Dialog(NewResponseActivity.this);
-                    dialog.requestWindowFeature(Window.FEATURE_NO_TITLE); //before
-                    dialog.setContentView(R.layout.number_limit_dialog);
-                    dialog.show();
-                    Button button = (Button) dialog.findViewById(R.id.okay);
-                    button.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
+                        numberlimitOk = false;
+                        final Dialog dialog = new Dialog(NewResponseActivity.this);
+                        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE); //before
+                        dialog.setContentView(R.layout.number_limit_dialog);
+                        dialog.show();
+                        Button button = (Button) dialog.findViewById(R.id.okay);
+                        button.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
 
-                            dialog.dismiss();
-                        }
-                    });
+                                dialog.dismiss();
+                            }
+                        });
 
+                    } else numberlimitOk = true;
                 }
-                else numberlimitOk=true;
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+
         //check for mandatory questions
         boolean x = checkMandatory(nestedQuestionList);
         if (x) {
 
-            if(numberlimitOk){
-            try{
-                answer.clearFocus();
-            }
-            catch (Exception e){
-                e.printStackTrace();
-            }
-            nestedQuestionList.clear();
+            if (numberlimitOk) {
+                try {
+                    answer.clearFocus();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                nestedQuestionList.clear();
 
-            //set next and previous buttons
-            if (questionCounter < totalQuestionCount - 1) {
-                previousQuestion.setBackgroundColor(getResources().getColor(R.color.login_button_color));
-                previousQuestion.setTextColor(getResources().getColor(R.color.white));
-                previousQuestion.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_arrow_back, 0, 0, 0);
-                nestedQuestions.clear();
-                nestedQuestions.clear();
-                fieldContainer.removeAllViews();
-                questionCounter++;
+                //set next and previous buttons
+                if (questionCounter < totalQuestionCount - 1) {
+                    previousQuestion.setBackgroundColor(getResources().getColor(R.color.login_button_color));
+                    previousQuestion.setTextColor(getResources().getColor(R.color.white));
+                    previousQuestion.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_arrow_back, 0, 0, 0);
+                    nestedQuestions.clear();
+                    nestedQuestions.clear();
+                    fieldContainer.removeAllViews();
+                    questionCounter++;
 
-                counterButton.setText(questionCounter + 1 + " out of " + totalQuestionCount);
+                    counterButton.setText(questionCounter + 1 + " out of " + totalQuestionCount);
 //for category type questions
-                for (int j = 0; j < categoriesList.size(); j++) {
-                    if (categoriesList.get(j).getOrderNumber() == types.get(questionCounter)) {
-                        currentCategory = categoriesList.get(j);
+                    for (int j = 0; j < categoriesList.size(); j++) {
+                        if (categoriesList.get(j).getOrderNumber() == types.get(questionCounter)) {
+                            currentCategory = categoriesList.get(j);
 
-                        //for multirecord questions
-                        if (currentCategory.getType().equals("MultiRecordCategory")) {
+                            //for multirecord questions
 
-                            recordId=currentCategory.getId();
-                            Button addRecord = new Button(this);
-                            addRecord.setBackgroundResource(R.drawable.custom_button);
-                            addRecord.setText("+  Add Record");
-                            addRecord.setTextColor(getResources().getColor(R.color.white));
-                            fieldContainer.addView(addRecord);
-                            addRecord.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View view) {
-
-                                    recordId=recordId+20;
-                                    buildCategoryLayout(currentCategory);
-                                    for (int k = 0; k < currentCategory.getQuestionsList().size(); k++) {
-                                    }
-                                }
-                            });
+                            buildCategoryLayout(currentCategory);
                         }
-                        buildCategoryLayout(currentCategory);
                     }
+
+                    //for general questions
+                    for (int j = 0; j < questionsList.size(); j++) {
+                        if (questionsList.get(j).getOrderNumber() == types.get(questionCounter)) {
+                            Questions cq = questionsList.get(j);
+                            buildLayout(cq);
+                            checkForAnswer(cq, currentResponseId);
+                            break;
+                        }
+                    }
+
+                    //check if questions is the last question
+                    checkIfLastQuestion();
                 }
 
-                //for general questions
-                for (int j = 0; j < questionsList.size(); j++) {
-                    if (questionsList.get(j).getOrderNumber() == types.get(questionCounter)) {
-                        Questions cq = questionsList.get(j);
-                        buildLayout(cq);
-                        checkForAnswer(cq, currentResponseId);
-                        break;
-                    }
+                //check not the first question
+                if (questionCounter != 0) {
+                    actionBar.setDisplayHomeAsUpEnabled(false);
+                    actionBar.setDisplayShowTitleEnabled(true);
+                    actionBar.setDisplayShowHomeEnabled(false);
+                    actionBar.setDisplayUseLogoEnabled(false);
                 }
-
-                //check if questions is the last question
-                checkIfLastQuestion();
             }
-
-            //check not the first question
-            if (questionCounter != 0) {
-                actionBar.setDisplayHomeAsUpEnabled(false);
-                actionBar.setDisplayShowTitleEnabled(true);
-                actionBar.setDisplayShowHomeEnabled(false);
-                actionBar.setDisplayUseLogoEnabled(false);
-            }}
         }
     }
 
@@ -1120,10 +1114,9 @@ public class NewResponseActivity extends Activity {
 
 
         if (questionCounter != 0) {
-            try{
+            try {
                 answer.clearFocus();
-            }
-            catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
             nestedQuestions.clear();
@@ -1132,7 +1125,7 @@ public class NewResponseActivity extends Activity {
             questionCounter--;
 
 
-            counterButton.setText(questionCounter + 1 + " out of "  + totalQuestionCount);
+            counterButton.setText(questionCounter + 1 + " out of " + totalQuestionCount);
             for (int j = 0; j < categoriesList.size(); j++) {
                 if (categoriesList.get(j).getOrderNumber() == types.get(questionCounter)) {
                     Categories currentCategory = categoriesList.get(j);
@@ -1303,7 +1296,6 @@ public class NewResponseActivity extends Activity {
             answers.setUpdated_at(tsLong);
 
 
-
             if (!dbAdapter.doesAnswerExist(questions.getId(), currentResponseId)) {
                 dbAdapter.insertDataAnswersTable(answers);
             }
@@ -1439,14 +1431,14 @@ public class NewResponseActivity extends Activity {
     //this will check if the ansdwer is saved and can be retrieved from the tables
     public void checkForAnswer(Questions qu, int responseId) {
 
-        if ((qu.getType().equals("SingleLineQuestion"))||(qu.getType().equals("MultilineQuestion"))||(qu.getType().equals("NumericQuestion"))) {
-            answer = (EditText) findViewById(qu.getId() + IntentConstants.VIEW_CONSTANT+ recordId);
+        if ((qu.getType().equals("SingleLineQuestion")) || (qu.getType().equals("MultilineQuestion")) || (qu.getType().equals("NumericQuestion"))) {
+            answer = (EditText) findViewById(qu.getId() + IntentConstants.VIEW_CONSTANT + recordId);
             answer.setText(dbAdapter.getAnswer(responseId, qu.getId()));
         }
 
 
         if (qu.getType().equals("DateQuestion")) {
-            dateText = (TextView) findViewById(qu.getId() + IntentConstants.VIEW_CONSTANT+ recordId );
+            dateText = (TextView) findViewById(qu.getId() + IntentConstants.VIEW_CONSTANT + recordId);
             dateText.setText(dbAdapter.getAnswer(responseId, qu.getId()));
         }
 
@@ -1468,6 +1460,7 @@ public class NewResponseActivity extends Activity {
             if (!dbAdapter.getImage(responseId, qu.getId()).equals("")) {
                 deleteImageRelativeLayout.setVisibility(View.VISIBLE);
                 loadImageFromStorage(Environment.getExternalStorageDirectory().toString() + "/saved_images", dbAdapter.getImage(responseId, qu.getId()));
+                Toast.makeText(NewResponseActivity.this,"image is"+ qu.getId(),Toast.LENGTH_SHORT).show();
             }
         }
 
@@ -1495,7 +1488,7 @@ public class NewResponseActivity extends Activity {
                         if (options1.getQuestions().size() > 0) {
                             for (int l = 0; l < options1.getQuestions().size(); l++) {
                                 buildLayout(options1.getQuestions().get(l));
-                                //checkForAnswer(options1.getQuestions().get(l),currentResponseId);
+                                checkForAnswer(options1.getQuestions().get(l), currentResponseId);
                             }
                         }
                     }
@@ -1549,12 +1542,13 @@ public class NewResponseActivity extends Activity {
             List<Integer> list2 =
                     dbAdapter.getOptionIds(integers);
 
+
             for (int i = 0; i < list2.size(); i++) {
 
                 for (int j = 0; j < qu.getOptions().size(); j++) {
                     if (qu.getOptions().get(j).getId() == list2.get(i)) {
 
-                        spinner.setSelection(j+1);
+                        spinner.setSelection(j + 1);
 
                     }
 
@@ -1568,17 +1562,14 @@ public class NewResponseActivity extends Activity {
     //add record to database in case of selectedlement
     public void addOptionToDataBase(Options options, Questions qu) {
 
-        if(options==null){
+        if (options == null) {
 
             Choices choices1 = new Choices();
             int answerId = dbAdapter.getIdFromAnswerTable(currentResponseId, qu.getId()).get(0);
-
             choices1.setAnswerId(answerId);
-
-            //choices1.setOptionId(options.getId());
+//            choices1.setOptionId(0);
             choices1.setOption("");
-            Toast.makeText(NewResponseActivity.this,"work"+choices1.getOption()+"option",Toast.LENGTH_SHORT).show();
-
+            //  Toast.makeText(NewResponseActivity.this, "work" + choices1.getOption() + "option", Toast.LENGTH_SHORT).show();
             choices1.setType(qu.getType());
             dbAdapter.insertDataChoicesTable(choices1);
         }
@@ -1638,7 +1629,7 @@ public class NewResponseActivity extends Activity {
         for (int i = 0; i < nestedQuestionList.size(); i++) {
 
             //this will check for answers for questions having answers in answeers table
-            if ((nestedQuestionList.get(i).getType().equals("SingleLineQuestion"))||(nestedQuestionList.get(i).getType().equals("MultilineQuestion")||(nestedQuestionList.get(i).getType().equals("DateQuestion"))||(nestedQuestionList.get(i).getType().equals("NumericQuestion")))) {
+            if ((nestedQuestionList.get(i).getType().equals("SingleLineQuestion")) || (nestedQuestionList.get(i).getType().equals("MultilineQuestion") || (nestedQuestionList.get(i).getType().equals("DateQuestion")) || (nestedQuestionList.get(i).getType().equals("NumericQuestion")))) {
 
                 if (nestedQuestionList.get(i).getMandatory() == 1) {
                     if (dbAdapter.doesAnswerExistAsNonNull(nestedQuestionList.get(i).getId(), currentResponseId).equals("")) {
@@ -1648,7 +1639,7 @@ public class NewResponseActivity extends Activity {
                 }
 
             }
-            if((nestedQuestionList.get(i).getType().equals("RatingQuestion"))) {
+            if ((nestedQuestionList.get(i).getType().equals("RatingQuestion"))) {
                 if (nestedQuestionList.get(i).getMandatory() == 1) {
                     if (dbAdapter.doesAnswerExistAsNonNull(nestedQuestionList.get(i).getId(), currentResponseId).equals("0.0")) {
                         showDialog();
@@ -1658,9 +1649,8 @@ public class NewResponseActivity extends Activity {
             }
 
 
-
             //this wil check questions having answers in choices tables have answers or not
-            if ((nestedQuestionList.get(i).getType().equals("RadioQuestion"))||(nestedQuestionList.get(i).getType().equals("MultiChoiceQuestion"))||((nestedQuestionList.get(i).getType().equals("DropDownQuestion")))) {
+            if ((nestedQuestionList.get(i).getType().equals("RadioQuestion")) || (nestedQuestionList.get(i).getType().equals("MultiChoiceQuestion")) || ((nestedQuestionList.get(i).getType().equals("DropDownQuestion")))) {
                 if (nestedQuestionList.get(i).getMandatory() == 1) {
                     int count = dbAdapter.getAnswerId(currentResponseId, nestedQuestionList.get(i).getId());
                     if (count == 0) {
@@ -1689,8 +1679,6 @@ public class NewResponseActivity extends Activity {
         }
         return proceed;
     }
-
-
 
 
     //mandatory question dialog

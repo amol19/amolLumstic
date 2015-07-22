@@ -275,6 +275,13 @@ public class ActiveSurveyActivity extends Activity {
 
             return true;
         }
+//        if (id == R.id.action_fetch) {
+//            finish();
+//            Intent i = new Intent(ActiveSurveyActivity.this, ActiveSurveyActivity.class);
+//            startActivity(i);
+//
+//            return true;
+//        }
         return super.onOptionsItemSelected(item);
     }
 
