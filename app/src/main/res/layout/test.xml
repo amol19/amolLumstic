@@ -26,6 +26,7 @@
             android:textSize="20sp" />
 
         <LinearLayout
+            android:visibility="gone"
             android:id="@+id/upload_container"
             android:layout_width="fill_parent"
             android:layout_height="48dp"

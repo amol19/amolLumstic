@@ -16,6 +16,7 @@
         <activity
             android:name="lumstic.ashoka.com.lumstic.UI.SplashActivity"
             android:label="@string/app_name"
+            android:screenOrientation="portrait"
             android:theme="@android:style/Theme.Holo.NoActionBar.Fullscreen">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -25,30 +26,39 @@
         </activity>
         <activity
             android:name="lumstic.ashoka.com.lumstic.UI.LoginActivity"
+            android:screenOrientation="portrait"
             android:label="@string/title_activity_login" />
         <activity
             android:name="lumstic.ashoka.com.lumstic.UI.DashBoardActivity"
+            android:screenOrientation="portrait"
             android:label="@string/title_activity_dash_board" />
         <activity
             android:name="lumstic.ashoka.com.lumstic.UI.ForgotPasswordActivity"
+            android:screenOrientation="portrait"
             android:label="@string/title_activity_forgot_password" />
         <activity
             android:name="lumstic.ashoka.com.lumstic.UI.SurveyDetailsActivity"
+            android:screenOrientation="portrait"
             android:label="@string/title_activity_survey_details" />
         <activity
             android:name="lumstic.ashoka.com.lumstic.UI.CompleteResponsesActivity"
+            android:screenOrientation="portrait"
             android:label="@string/title_activity_complete_responses" />
         <activity
             android:name="lumstic.ashoka.com.lumstic.UI.ActiveSurveyActivity"
+            android:screenOrientation="portrait"
             android:label="@string/title_activity_active_survey" />
         <activity
             android:name="lumstic.ashoka.com.lumstic.UI.IncompleteResponseActivity"
+            android:screenOrientation="portrait"
             android:label="@string/title_activity_incomplete_response" />
         <activity
             android:name="lumstic.ashoka.com.lumstic.UI.NewResponseActivity"
+            android:screenOrientation="portrait"
             android:label="@string/title_activity_new_response" />
         <activity
             android:name="lumstic.ashoka.com.lumstic.UI.HelpActivity"
+            android:screenOrientation="portrait"
             android:label="@string/title_activity_help"></activity>
     </application>
 

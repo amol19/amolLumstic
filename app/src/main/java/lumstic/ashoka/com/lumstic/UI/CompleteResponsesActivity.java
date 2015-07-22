@@ -2,10 +2,14 @@ package lumstic.ashoka.com.lumstic.UI;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.Dialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -20,6 +24,7 @@ import lumstic.ashoka.com.lumstic.Models.Questions;
 import lumstic.ashoka.com.lumstic.Models.Surveys;
 import lumstic.ashoka.com.lumstic.R;
 import lumstic.ashoka.com.lumstic.Utils.IntentConstants;
+import lumstic.ashoka.com.lumstic.Utils.LumsticApp;
 
 public class CompleteResponsesActivity extends Activity {
 
@@ -30,6 +35,7 @@ public class CompleteResponsesActivity extends Activity {
     private TextView responseCount;
     private TextView surveyTitle;
     private LinearLayout uploadContainer;
+    private LumsticApp lumsticApp;
 
     private Surveys surveys;
     private Questions identifierQuestion;
@@ -57,6 +63,7 @@ public class CompleteResponsesActivity extends Activity {
         completeResponseses = new ArrayList<CompleteResponses>();
         completeResponsesId = new ArrayList<Integer>();
         identifierQuestionAnswers = new ArrayList<String>();
+        lumsticApp= (LumsticApp) getApplication();
         //setting up views
         responseCount = (TextView) findViewById(R.id.complete_response_count);
         surveyTitle = (TextView) findViewById(R.id.survey_title_text);
@@ -110,6 +117,32 @@ public class CompleteResponsesActivity extends Activity {
         }
         if (id == android.R.id.home) {
             finish();
+            return true;
+        }
+        if (id == R.id.action_fetch) {
+
+            Intent i = new Intent(CompleteResponsesActivity.this, ActiveSurveyActivity.class);
+            startActivity(i);
+            finish();
+            return true;
+        }
+        if (id == R.id.action_logout) {
+            final Dialog dialog = new Dialog(CompleteResponsesActivity.this);
+            dialog.requestWindowFeature(Window.FEATURE_NO_TITLE); //before
+            dialog.setContentView(R.layout.logout_dialog);
+            dialog.show();
+            Button button = (Button) dialog.findViewById(R.id.okay);
+            button.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    lumsticApp.getPreferences().setAccessToken("");
+                    finish();
+                    Intent i = new Intent(CompleteResponsesActivity.this, LoginActivity.class);
+                    startActivity(i);
+                    dialog.dismiss();
+
+                }
+            });
             return true;
         }
         return super.onOptionsItemSelected(menuItem);

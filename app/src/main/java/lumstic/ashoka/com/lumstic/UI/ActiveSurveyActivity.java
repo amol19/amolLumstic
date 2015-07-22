@@ -76,6 +76,7 @@ public class ActiveSurveyActivity extends Activity {
     private DashBoardAdapter dashBoardAdapter;
     private DBAdapter dbAdapter;
     private LocationManager locationManager;
+    private boolean networkError=false;
 
     private List<Surveys> surveysList;
     private List<Integer> completedResponseIds;
@@ -107,6 +108,7 @@ public class ActiveSurveyActivity extends Activity {
         lumsticApp = (LumsticApp) getApplication();
 
 
+
         if(lumsticApp.getPreferences().getBaseUrl()==null){
             baseUrl=ActiveSurveyActivity.this.getResources().getString(R.string.server_url);
         }
@@ -119,13 +121,11 @@ public class ActiveSurveyActivity extends Activity {
         progressDialog = new ProgressDialog(ActiveSurveyActivity.this);
 
         uploadContainer = (LinearLayout) findViewById(R.id.upload_container);
+        uploadContainer.setVisibility(View.GONE);
         uploadButton = (Button) findViewById(R.id.upload_all);
         uploadContainer.setVisibility(View.GONE);
 
-        completeCount = dbAdapter.getCompleteResponseFull();
-        if (dbAdapter.getCompleteResponseFull() == 0) {
-            uploadContainer.setVisibility(View.GONE);
-        }
+
 
         progressDialog.setCancelable(false);
         progressDialog.setIndeterminate(true);
@@ -162,6 +162,7 @@ public class ActiveSurveyActivity extends Activity {
                     progressDialog.setIndeterminate(true);
                     progressDialog.setMessage("Sync in Progress");
                     progressDialog.show();
+
 
 
                     new uploadResponse().execute();
@@ -339,6 +340,7 @@ public class ActiveSurveyActivity extends Activity {
             }
             listView = (ListView) findViewById(R.id.active_survey_list);
             if (surveysList != null) {
+                networkError=false;
                 dashBoardAdapter = new DashBoardAdapter(getApplicationContext(), surveysList);
                 progressDialog.dismiss();
                 uploadContainer.setVisibility(View.VISIBLE);
@@ -348,7 +350,20 @@ public class ActiveSurveyActivity extends Activity {
                 progressDialog.dismiss();
                 uploadContainer.setVisibility(View.VISIBLE);
                 Toast.makeText(ActiveSurveyActivity.this, "Please check your wifi or network settings", Toast.LENGTH_SHORT).show();
+
+                finish();
+                networkError=true;
+                uploadContainer.setVisibility(View.GONE);
+
             }
+            completeCount = dbAdapter.getCompleteResponseFull();
+            if(!networkError){
+            if (dbAdapter.getCompleteResponseFull() != 0) {
+                uploadContainer.setVisibility(View.VISIBLE);
+            }
+            if (dbAdapter.getCompleteResponseFull() == 0) {
+                uploadContainer.setVisibility(View.GONE);
+            }}
             try {
                 for (int i = 0; i < surveysList.size(); i++) {
                     Surveys surveys = surveysList.get(i);

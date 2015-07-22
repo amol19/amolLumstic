@@ -121,6 +121,7 @@ public class DashBoardActivity extends Activity {
         if (!lumsticApp.getPreferences().getSurveyData().equals("")) {
             setContentView(R.layout.test);
             uploadContainer = (LinearLayout) findViewById(R.id.upload_container);
+            uploadContainer.setVisibility(View.GONE);
             uploadButton = (RobotoBlackButton) findViewById(R.id.upload_all);
             completeCount = dbAdapter.getCompleteResponseFull();
             jsonParser = new JSONParser();
@@ -146,6 +147,7 @@ public class DashBoardActivity extends Activity {
                         progressDialog.setIndeterminate(true);
                         progressDialog.setMessage("Sync in Progress");
                         progressDialog.show();
+                        uploadContainer.setVisibility(View.GONE);
                         new uploadResponse().execute();
                     }
                 }
@@ -217,6 +219,7 @@ public class DashBoardActivity extends Activity {
         if (id == R.id.action_fetch) {
             Intent i = new Intent(DashBoardActivity.this, ActiveSurveyActivity.class);
             startActivity(i);
+
             return true;
         }
         if (id == R.id.action_logout) {

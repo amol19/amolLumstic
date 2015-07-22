@@ -2,9 +2,14 @@ package lumstic.ashoka.com.lumstic.UI;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.Dialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.Window;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -121,6 +126,32 @@ public class IncompleteResponseActivity extends Activity {
         }
         if (id == android.R.id.home) {
             finish();
+            return true;
+        }
+        if (id == R.id.action_fetch) {
+
+            Intent i = new Intent(IncompleteResponseActivity.this, ActiveSurveyActivity.class);
+            startActivity(i);
+            finish();
+            return true;
+        }
+        if (id == R.id.action_logout) {
+            final Dialog dialog = new Dialog(IncompleteResponseActivity.this);
+            dialog.requestWindowFeature(Window.FEATURE_NO_TITLE); //before
+            dialog.setContentView(R.layout.logout_dialog);
+            dialog.show();
+            Button button = (Button) dialog.findViewById(R.id.okay);
+            button.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    lumsticApp.getPreferences().setAccessToken("");
+                    finish();
+                    Intent i = new Intent(IncompleteResponseActivity.this, LoginActivity.class);
+                    startActivity(i);
+                    dialog.dismiss();
+
+                }
+            });
             return true;
         }
         return super.onOptionsItemSelected(item);

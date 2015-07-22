@@ -394,7 +394,7 @@ public class NewResponseActivity extends Activity {
 
             questionTextSingleLine.setTextSize(16);
             if (ques.getMandatory() == 1) {
-                questionTextSingleLine.setText("Q." + (questionCounter + 1) + "." + categoryQuestionCounter + "  " + ques.getContent() + "  *");
+                questionTextSingleLine.setText("Q." + (questionCounter + 1) + "." + categoryQuestionCounter + "  " + ques.getContent() + " *");
                 if (ques.getParentId() > 0)
                     questionTextSingleLine.setText("Q." + "  " + ques.getContent() + " *");
             } else {
@@ -569,6 +569,16 @@ public class NewResponseActivity extends Activity {
                 @Override
                 public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
 
+                    try{
+                    if(i==0){
+                        Toast.makeText(NewResponseActivity.this,"working",Toast.LENGTH_SHORT).show();
+                        addOptionToDataBase(null, ques);
+                        nestedQuestionList.clear();
+                        nestedQuestionList.add(ques);
+                        removeOthersFromDataBase(null, ques);
+                    }}catch (Exception e){
+                        e.printStackTrace();
+                    }
 
                     if (i != 0) {
                         //add option selected to database table choices table
@@ -1229,7 +1239,7 @@ public class NewResponseActivity extends Activity {
         for (int j = categories.getQuestionsList().size() - 1; j >= 0; j--) {
             categoryQuestionCounter++;
             buildLayout(categories.getQuestionsList().get(j));
-            //checkForAnswer(categories.getQuestionsList().get(j), currentResponseId);
+            checkForAnswer(categories.getQuestionsList().get(j), currentResponseId);
         }
         categoryQuestionCounter = 0;
 
@@ -1558,6 +1568,20 @@ public class NewResponseActivity extends Activity {
     //add record to database in case of selectedlement
     public void addOptionToDataBase(Options options, Questions qu) {
 
+        if(options==null){
+
+            Choices choices1 = new Choices();
+            int answerId = dbAdapter.getIdFromAnswerTable(currentResponseId, qu.getId()).get(0);
+
+            choices1.setAnswerId(answerId);
+
+            //choices1.setOptionId(options.getId());
+            choices1.setOption("");
+            Toast.makeText(NewResponseActivity.this,"work"+choices1.getOption()+"option",Toast.LENGTH_SHORT).show();
+
+            choices1.setType(qu.getType());
+            dbAdapter.insertDataChoicesTable(choices1);
+        }
 
         if (options != null) {
             Choices choices = new Choices();
@@ -1614,7 +1638,7 @@ public class NewResponseActivity extends Activity {
         for (int i = 0; i < nestedQuestionList.size(); i++) {
 
             //this will check for answers for questions having answers in answeers table
-            if ((nestedQuestionList.get(i).getType().equals("SingleLineQuestion"))||(nestedQuestionList.get(i).getType().equals("MultilineQuestion")||(nestedQuestionList.get(i).getType().equals("RatingQuestion")))||(nestedQuestionList.get(i).getType().equals("DateQuestion"))||(nestedQuestionList.get(i).getType().equals("NumericQuestion"))) {
+            if ((nestedQuestionList.get(i).getType().equals("SingleLineQuestion"))||(nestedQuestionList.get(i).getType().equals("MultilineQuestion")||(nestedQuestionList.get(i).getType().equals("DateQuestion"))||(nestedQuestionList.get(i).getType().equals("NumericQuestion")))) {
 
                 if (nestedQuestionList.get(i).getMandatory() == 1) {
                     if (dbAdapter.doesAnswerExistAsNonNull(nestedQuestionList.get(i).getId(), currentResponseId).equals("")) {
@@ -1624,6 +1648,17 @@ public class NewResponseActivity extends Activity {
                 }
 
             }
+            if((nestedQuestionList.get(i).getType().equals("RatingQuestion"))) {
+                if (nestedQuestionList.get(i).getMandatory() == 1) {
+                    if (dbAdapter.doesAnswerExistAsNonNull(nestedQuestionList.get(i).getId(), currentResponseId).equals("0.0")) {
+                        showDialog();
+                        proceed = false;
+                    } else proceed = true;
+                }
+            }
+
+
+
             //this wil check questions having answers in choices tables have answers or not
             if ((nestedQuestionList.get(i).getType().equals("RadioQuestion"))||(nestedQuestionList.get(i).getType().equals("MultiChoiceQuestion"))||((nestedQuestionList.get(i).getType().equals("DropDownQuestion")))) {
                 if (nestedQuestionList.get(i).getMandatory() == 1) {
