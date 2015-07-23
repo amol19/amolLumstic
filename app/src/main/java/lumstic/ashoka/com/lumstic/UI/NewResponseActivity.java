@@ -12,6 +12,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Base64;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -100,6 +101,7 @@ public class NewResponseActivity extends Activity {
     private RatingBar ratingBar;
     private int recordId = 0;
     private LumsticApp lumsticApp;
+    private String order="";
     private boolean numberlimitOk = true;
 
 
@@ -412,11 +414,11 @@ public class NewResponseActivity extends Activity {
             if (ques.getMandatory() == 1) {
                 questionTextSingleLine.setText("Q." + (questionCounter + 1) + "  " + ques.getContent() + " *");
                 if (ques.getParentId() > 0)
-                    questionTextSingleLine.setText("Q." + "  " + ques.getContent() + " *");
+                    questionTextSingleLine.setText("Q." + (questionCounter + 1)+"."+ order+ "  " + ques.getContent()+" *");
             } else {
                 questionTextSingleLine.setText("Q." + (questionCounter + 1) + "  " + ques.getContent());
                 if (ques.getParentId() > 0)
-                    questionTextSingleLine.setText("Q." + "  " + ques.getContent());
+                    questionTextSingleLine.setText("Q." + (questionCounter + 1)+"."+ order+ "  " + ques.getContent());
 
             }
         }
@@ -635,6 +637,7 @@ public class NewResponseActivity extends Activity {
                 addAnswer(ques);
 
             }
+
             LinearLayout nestedContainer = createNestedContainer();
             TextView questionTextSingleLine = createQuestionTitle(ques);
             nestedContainer.addView(questionTextSingleLine);
@@ -656,12 +659,20 @@ public class NewResponseActivity extends Activity {
                 checkBox.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
+                        if (ques.getParentId() == 0) {
+                            Toast.makeText(NewResponseActivity.this, "no parent", Toast.LENGTH_SHORT).show();
+                            order = "";
+                        }
+
                         checked = true;
                         if (((CheckBox) view).isChecked()) {
 
                             CheckBox checkBox1 = (CheckBox) view;
                             Options options = (Options) checkBox1.getTag();
 
+                            int x = options.getOrderNumber() + 97;
+                            String character = Character.toString((char) x);
+                            order = order + character + ".";
                             addOptionToDataBase(options, ques);
                             nestedQuestionList.clear();
                             nestedQuestionList.add(ques);
@@ -671,6 +682,7 @@ public class NewResponseActivity extends Activity {
                             try {
                                 if (options.getQuestions().size() > 0) {
                                     for (int i = 0; i < options.getQuestions().size(); i++) {
+                                        order = order + Integer.toString(0 + 1);
                                         buildLayout(options.getQuestions().get(i));
                                         checkForAnswer(options.getQuestions().get(i), currentResponseId);
                                     }
@@ -791,6 +803,7 @@ public class NewResponseActivity extends Activity {
         if (ques.getType().contains("RadioQuestion")) {
 
 
+
             nestedQuestions.add(ques);
             if (!dbAdapter.doesAnswerExist(ques.getId(), currentResponseId)) {
                 addAnswer(ques);
@@ -807,7 +820,6 @@ public class NewResponseActivity extends Activity {
             radioGroup.setOrientation(RadioGroup.VERTICAL);
             nestedContainer.addView(radioGroup);
 
-
             for (int i = 0; i < ques.getOptions().size(); i++) {
                 final RadioButton radioButton = new RadioButton(this);
                 radioGroup.addView(radioButton);
@@ -821,11 +833,33 @@ public class NewResponseActivity extends Activity {
                     @Override
                     public void onCheckedChanged(RadioGroup group, int checkedId) {
 
+                        String tempOrder="";
+                       //
+
                         View myView = findViewById(checkedId);
                         RadioButton radioButton1 = (RadioButton) myView;
                         Options options = (Options) radioButton1.getTag();
 
-                        //add answer to database
+
+                        if(ques.getParentId()==0){
+                            order="";
+                        }
+
+                        else {
+                            if(radioGroup.getTag()!=null)
+                            {
+                                tempOrder=String.valueOf(radioGroup.getTag());
+                            }
+                            Log.e("order",order);
+                            Log.e("order1",tempOrder);
+//                                order = order.substring(0, order.length() - 3);
+//                            Toast.makeText(NewResponseActivity.this,"not a parent",Toast.LENGTH_SHORT).show();
+                        }
+
+
+                        int x=options.getOrderNumber()+97;
+                        String character=Character.toString((char)x);
+                        order=tempOrder+character+".";
                         addOptionToDataBase(options, ques);
                         nestedQuestionList.clear();
                         nestedQuestionList.add(ques);
@@ -835,6 +869,16 @@ public class NewResponseActivity extends Activity {
                         //decide where to make questions for nested question
                         if (options.getQuestions().size() > 0) {
                             for (int i = 0; i < options.getQuestions().size(); i++) {
+                                if(i==0){
+                                    order = order + Integer.toString(i + 1);
+                                }
+                                if(i!=0) {
+                                   // order = order.substring(0, order.length() - 1);
+                                    order = order + Integer.toString(i + 1);
+                                }
+if(radioGroup.getTag()==null){
+    radioGroup.setTag(order);
+}
                                 buildLayout(options.getQuestions().get(i));
                                 checkForAnswer(options.getQuestions().get(i), currentResponseId);
                             }
@@ -1229,7 +1273,13 @@ public class NewResponseActivity extends Activity {
         nestedContainer.setId(categories.getId());
         nestedContainer.setTag(categories);
         fieldContainer.addView(nestedContainer);
-        for (int j = categories.getQuestionsList().size() - 1; j >= 0; j--) {
+
+
+        List<Questions> questionses= new ArrayList<>();
+        Questions questions;
+
+
+        for (int j = 0; j <categories.getQuestionsList().size(); j++) {
             categoryQuestionCounter++;
             buildLayout(categories.getQuestionsList().get(j));
             checkForAnswer(categories.getQuestionsList().get(j), currentResponseId);
@@ -1593,6 +1643,7 @@ public class NewResponseActivity extends Activity {
 
     //this is for not selected elements of radio
     public void removeOthersFromDataBase(Options options, Questions qu) {
+
 
 
         //this removes the answers entry from answers table as well as choices in choices table of rest of the options
