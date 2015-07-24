@@ -15,7 +15,7 @@
                 <!--android:title="@string/action_help">-->
 
             <!--</item>-->
-      
+
             <item
                 android:id="@+id/action_logout"
                 android:icon="@drawable/ic_menu_logout"
