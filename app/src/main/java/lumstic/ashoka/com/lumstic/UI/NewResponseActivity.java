@@ -12,7 +12,6 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Base64;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -59,7 +58,6 @@ import lumstic.ashoka.com.lumstic.Utils.IntentConstants;
 import lumstic.ashoka.com.lumstic.Utils.LumsticApp;
 
 public class NewResponseActivity extends Activity {
-
     DBAdapter dbAdapter;
     ActionBar actionBar;
     private ArrayList<Integer> types = null;
@@ -101,7 +99,7 @@ public class NewResponseActivity extends Activity {
     private RatingBar ratingBar;
     private int recordId = 0;
     private LumsticApp lumsticApp;
-    private String order="";
+    private String order = "";
     private boolean numberlimitOk = true;
 
 
@@ -414,11 +412,11 @@ public class NewResponseActivity extends Activity {
             if (ques.getMandatory() == 1) {
                 questionTextSingleLine.setText("Q." + (questionCounter + 1) + "  " + ques.getContent() + " *");
                 if (ques.getParentId() > 0)
-                    questionTextSingleLine.setText("Q." + (questionCounter + 1)+"."+ order+ "  " + ques.getContent()+" *");
+                    questionTextSingleLine.setText("Q." + (questionCounter + 1) + "." + order + "  " + ques.getContent() + " *");
             } else {
                 questionTextSingleLine.setText("Q." + (questionCounter + 1) + "  " + ques.getContent());
                 if (ques.getParentId() > 0)
-                    questionTextSingleLine.setText("Q." + (questionCounter + 1)+"."+ order+ "  " + ques.getContent());
+                    questionTextSingleLine.setText("Q." + (questionCounter + 1) + "." + order + "  " + ques.getContent());
 
             }
         }
@@ -803,7 +801,6 @@ public class NewResponseActivity extends Activity {
         if (ques.getType().contains("RadioQuestion")) {
 
 
-
             nestedQuestions.add(ques);
             if (!dbAdapter.doesAnswerExist(ques.getId(), currentResponseId)) {
                 addAnswer(ques);
@@ -819,8 +816,10 @@ public class NewResponseActivity extends Activity {
             radioGroup = new RadioGroup(this);
             radioGroup.setOrientation(RadioGroup.VERTICAL);
             nestedContainer.addView(radioGroup);
+            radioGroup.setTag(order);
 
             for (int i = 0; i < ques.getOptions().size(); i++) {
+
                 final RadioButton radioButton = new RadioButton(this);
                 radioGroup.addView(radioButton);
                 radioButton.setId(ques.getOptions().get(i).getId());
@@ -828,57 +827,50 @@ public class NewResponseActivity extends Activity {
                 radioButton.setTextColor(getResources().getColor(R.color.text_color));
                 radioButton.setText(ques.getOptions().get(i).getContent());
                 radioButton.setTag(ques.getOptions().get(i));
+
+
+                radioButton.setTag(R.string.app_name, radioGroup.getTag());
+
+
                 radioButton.setButtonDrawable(R.drawable.custom_radio_button);
+
                 radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
                     @Override
                     public void onCheckedChanged(RadioGroup group, int checkedId) {
-
-                        String tempOrder="";
-                       //
+                        String tempOrder = "";
 
                         View myView = findViewById(checkedId);
                         RadioButton radioButton1 = (RadioButton) myView;
                         Options options = (Options) radioButton1.getTag();
+                        int x = options.getOrderNumber() + 97;
+                        String character = Character.toString((char) x);
 
 
-                        if(ques.getParentId()==0){
-                            order="";
+                        group.setTag(findViewById(group.getCheckedRadioButtonId()).getTag(R.string.app_name));
+
+                        if (ques.getParentId() == 0) {
+                            order = "";
+                            order = tempOrder + character + ".";
+                        } else {
+                            RadioButton localRadioButton = (RadioButton) findViewById(group.getCheckedRadioButtonId());
+                            if (radioButton.getTag(R.string.app_name) != null)
+                                tempOrder = localRadioButton.getTag(R.string.app_name).toString();
+                            order = "";
+                            order = tempOrder + ".";
                         }
 
-                        else {
-                            if(radioGroup.getTag()!=null)
-                            {
-                                tempOrder=String.valueOf(radioGroup.getTag());
-                            }
-                            Log.e("order",order);
-                            Log.e("order1",tempOrder);
-//                                order = order.substring(0, order.length() - 3);
-//                            Toast.makeText(NewResponseActivity.this,"not a parent",Toast.LENGTH_SHORT).show();
-                        }
 
-
-                        int x=options.getOrderNumber()+97;
-                        String character=Character.toString((char)x);
-                        order=tempOrder+character+".";
+                        order = tempOrder + character + ".";
                         addOptionToDataBase(options, ques);
                         nestedQuestionList.clear();
                         nestedQuestionList.add(ques);
                         //remove others from database
                         removeOthersFromDataBase(options, ques);
-
+                        String tmp = order;
                         //decide where to make questions for nested question
                         if (options.getQuestions().size() > 0) {
                             for (int i = 0; i < options.getQuestions().size(); i++) {
-                                if(i==0){
-                                    order = order + Integer.toString(i + 1);
-                                }
-                                if(i!=0) {
-                                   // order = order.substring(0, order.length() - 1);
-                                    order = order + Integer.toString(i + 1);
-                                }
-if(radioGroup.getTag()==null){
-    radioGroup.setTag(order);
-}
+                                order = tmp + Integer.toString(i + 1);
                                 buildLayout(options.getQuestions().get(i));
                                 checkForAnswer(options.getQuestions().get(i), currentResponseId);
                             }
@@ -891,7 +883,7 @@ if(radioGroup.getTag()==null){
                             }
                         }
 
-                        //remove unnessecary questions and categories on other item selected
+                        //remove unnecessary questions and categories on other item selected
                         for (int i = 0; i < ques.getOptions().size(); i++) {
                             if (!ques.getOptions().get(i).getContent().equals(options.getContent())) {
                                 removeQuestionView(ques.getOptions().get(i));
@@ -1275,11 +1267,11 @@ if(radioGroup.getTag()==null){
         fieldContainer.addView(nestedContainer);
 
 
-        List<Questions> questionses= new ArrayList<>();
+        List<Questions> questionses = new ArrayList<>();
         Questions questions;
 
 
-        for (int j = 0; j <categories.getQuestionsList().size(); j++) {
+        for (int j = 0; j < categories.getQuestionsList().size(); j++) {
             categoryQuestionCounter++;
             buildLayout(categories.getQuestionsList().get(j));
             checkForAnswer(categories.getQuestionsList().get(j), currentResponseId);
@@ -1510,7 +1502,7 @@ if(radioGroup.getTag()==null){
             if (!dbAdapter.getImage(responseId, qu.getId()).equals("")) {
                 deleteImageRelativeLayout.setVisibility(View.VISIBLE);
                 loadImageFromStorage(Environment.getExternalStorageDirectory().toString() + "/saved_images", dbAdapter.getImage(responseId, qu.getId()));
-                Toast.makeText(NewResponseActivity.this,"image is"+ qu.getId(),Toast.LENGTH_SHORT).show();
+                Toast.makeText(NewResponseActivity.this, "image is" + qu.getId(), Toast.LENGTH_SHORT).show();
             }
         }
 
@@ -1643,7 +1635,6 @@ if(radioGroup.getTag()==null){
 
     //this is for not selected elements of radio
     public void removeOthersFromDataBase(Options options, Questions qu) {
-
 
 
         //this removes the answers entry from answers table as well as choices in choices table of rest of the options
