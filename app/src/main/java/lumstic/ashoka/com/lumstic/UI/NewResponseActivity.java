@@ -101,7 +101,7 @@ public class NewResponseActivity extends Activity {
     private RatingBar ratingBar;
     private int recordId = 0;
     private LumsticApp lumsticApp;
-    private String order="";
+    private String order = "";
     private boolean numberlimitOk = true;
 
 
@@ -399,7 +399,7 @@ public class NewResponseActivity extends Activity {
 
         if (categoryQuestionCounter > 0) {
 
-            questionTextSingleLine.setTextSize(16);
+            questionTextSingleLine.setTextSize(20);
             if (ques.getMandatory() == 1) {
                 questionTextSingleLine.setText("Q." + (questionCounter + 1) + "." + categoryQuestionCounter + "  " + ques.getContent() + " *");
                 if (ques.getParentId() > 0)
@@ -414,11 +414,11 @@ public class NewResponseActivity extends Activity {
             if (ques.getMandatory() == 1) {
                 questionTextSingleLine.setText("Q." + (questionCounter + 1) + "  " + ques.getContent() + " *");
                 if (ques.getParentId() > 0)
-                    questionTextSingleLine.setText("Q." + (questionCounter + 1)+"."+ order+ "  " + ques.getContent()+" *");
+                    questionTextSingleLine.setText("Q." + (questionCounter + 1) + "." + order + "  " + ques.getContent() + " *");
             } else {
                 questionTextSingleLine.setText("Q." + (questionCounter + 1) + "  " + ques.getContent());
                 if (ques.getParentId() > 0)
-                    questionTextSingleLine.setText("Q." + (questionCounter + 1)+"."+ order+ "  " + ques.getContent());
+                    questionTextSingleLine.setText("Q." + (questionCounter + 1) + "." + order + "  " + ques.getContent());
 
             }
         }
@@ -660,7 +660,7 @@ public class NewResponseActivity extends Activity {
                     @Override
                     public void onClick(View view) {
                         if (ques.getParentId() == 0) {
-                            Toast.makeText(NewResponseActivity.this, "no parent", Toast.LENGTH_SHORT).show();
+                            //Toast.makeText(NewResponseActivity.this, "no parent", Toast.LENGTH_SHORT).show();
                             order = "";
                         }
 
@@ -803,7 +803,6 @@ public class NewResponseActivity extends Activity {
         if (ques.getType().contains("RadioQuestion")) {
 
 
-
             nestedQuestions.add(ques);
             if (!dbAdapter.doesAnswerExist(ques.getId(), currentResponseId)) {
                 addAnswer(ques);
@@ -833,33 +832,30 @@ public class NewResponseActivity extends Activity {
                     @Override
                     public void onCheckedChanged(RadioGroup group, int checkedId) {
 
-                        String tempOrder="";
-                       //
+                        String tempOrder = "";
+                        //
 
                         View myView = findViewById(checkedId);
                         RadioButton radioButton1 = (RadioButton) myView;
                         Options options = (Options) radioButton1.getTag();
 
 
-                        if(ques.getParentId()==0){
-                            order="";
-                        }
-
-                        else {
-                            if(radioGroup.getTag()!=null)
-                            {
-                                tempOrder=String.valueOf(radioGroup.getTag());
+                        if (ques.getParentId() == 0) {
+                            order = "";
+                        } else {
+                            if (radioGroup.getTag() != null) {
+                                tempOrder = String.valueOf(radioGroup.getTag());
                             }
-                            Log.e("order",order);
-                            Log.e("order1",tempOrder);
+                            Log.e("order", order);
+                            Log.e("order1", tempOrder);
 //                                order = order.substring(0, order.length() - 3);
 //                            Toast.makeText(NewResponseActivity.this,"not a parent",Toast.LENGTH_SHORT).show();
                         }
 
 
-                        int x=options.getOrderNumber()+97;
-                        String character=Character.toString((char)x);
-                        order=tempOrder+character+".";
+                        int x = options.getOrderNumber() + 97;
+                        String character = Character.toString((char) x);
+                        order = tempOrder + character + ".";
                         addOptionToDataBase(options, ques);
                         nestedQuestionList.clear();
                         nestedQuestionList.add(ques);
@@ -869,16 +865,16 @@ public class NewResponseActivity extends Activity {
                         //decide where to make questions for nested question
                         if (options.getQuestions().size() > 0) {
                             for (int i = 0; i < options.getQuestions().size(); i++) {
-                                if(i==0){
+                                if (i == 0) {
                                     order = order + Integer.toString(i + 1);
                                 }
-                                if(i!=0) {
-                                   // order = order.substring(0, order.length() - 1);
+                                if (i != 0) {
+                                    // order = order.substring(0, order.length() - 1);
                                     order = order + Integer.toString(i + 1);
                                 }
-if(radioGroup.getTag()==null){
-    radioGroup.setTag(order);
-}
+                                if (radioGroup.getTag() == null) {
+                                    radioGroup.setTag(order);
+                                }
                                 buildLayout(options.getQuestions().get(i));
                                 checkForAnswer(options.getQuestions().get(i), currentResponseId);
                             }
@@ -1275,11 +1271,11 @@ if(radioGroup.getTag()==null){
         fieldContainer.addView(nestedContainer);
 
 
-        List<Questions> questionses= new ArrayList<>();
+        List<Questions> questionses = new ArrayList<>();
         Questions questions;
 
 
-        for (int j = 0; j <categories.getQuestionsList().size(); j++) {
+        for (int j = 0; j < categories.getQuestionsList().size(); j++) {
             categoryQuestionCounter++;
             buildLayout(categories.getQuestionsList().get(j));
             checkForAnswer(categories.getQuestionsList().get(j), currentResponseId);
@@ -1510,7 +1506,7 @@ if(radioGroup.getTag()==null){
             if (!dbAdapter.getImage(responseId, qu.getId()).equals("")) {
                 deleteImageRelativeLayout.setVisibility(View.VISIBLE);
                 loadImageFromStorage(Environment.getExternalStorageDirectory().toString() + "/saved_images", dbAdapter.getImage(responseId, qu.getId()));
-                Toast.makeText(NewResponseActivity.this,"image is"+ qu.getId(),Toast.LENGTH_SHORT).show();
+                Toast.makeText(NewResponseActivity.this, "image is" + qu.getId(), Toast.LENGTH_SHORT).show();
             }
         }
 
@@ -1643,7 +1639,6 @@ if(radioGroup.getTag()==null){
 
     //this is for not selected elements of radio
     public void removeOthersFromDataBase(Options options, Questions qu) {
-
 
 
         //this removes the answers entry from answers table as well as choices in choices table of rest of the options
